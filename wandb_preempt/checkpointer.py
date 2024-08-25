@@ -336,7 +336,7 @@ class CheckpointAtEnd:
         exc_type: Optional[Type[BaseException]],
         exc_value: Optional[BaseException],
         traceback: Optional[TracebackType],
-    ) -> Optional[bool]:
+    ):
         """Exit a block.
 
         If everything went normal, save a checkpoint and remove older checkpoints.
@@ -348,9 +348,6 @@ class CheckpointAtEnd:
             exc_type: The type of the exception that was raised, if any.
             exc_value: The exception that was raised, if any.
             traceback: The traceback of the exception that was raised, if any.
-
-        Returns:
-            `None`.
         """
         # save a checkpoint if everything went normal
         normal_exit = exc_type is None
