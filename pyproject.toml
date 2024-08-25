@@ -37,7 +37,7 @@ dependencies = []
 requires-python = ">=3.9"
 
 [project.optional-dependencies]
-# Dependencies needed to run the tests (semicolon/line-separated)
+# Dependencies needed to run the tests (comma/line-separated)
 # Dependencies needed to run the tests.
 test = [
     "coveralls",
@@ -46,7 +46,7 @@ test = [
     "pytest-optional-tests",
 ]
 
-# Dependencies needed for linting (semicolon/line-separated)
+# Dependencies needed for linting (comma/line-separated)
 lint = [
     "black",
     "flake8",
@@ -60,6 +60,13 @@ lint = [
     "darglint",
     "pydocstyle",
     "isort",
+]
+
+# Dependencies needed to run the example (comma/line-separated)
+example = [
+    "torch",
+    "torchvision",
+    "wandb",
 ]
 
 [tool.setuptools_scm]
