@@ -1,0 +1,20 @@
+entity: ???
+project: ???
+name: SGD
+program: train.py
+command:
+    - ${env}
+    - python
+    - ${program}
+    - ${args}
+metric:
+    goal: minimize
+    name: loss
+method: random
+parameters:
+    lr:
+        distribution: log_uniform_values
+        min: 1e-3
+        max: 1e-1
+    max_epochs:
+        value: 150
