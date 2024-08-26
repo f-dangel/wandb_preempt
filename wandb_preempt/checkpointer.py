@@ -102,6 +102,7 @@ class CheckpointHandler:
         self.scaler = scaler
         self.verbose = verbose
         self.marked_preempted = False
+        self.num_resumes = 0
 
         signal(SIGUSR1, self.mark_preempted)
 
@@ -175,6 +176,7 @@ class CheckpointHandler:
             "optimizer": self.optimizer.state_dict(),
             "rng_states": rng_states,
             "epoch": epoch,
+            "resumes": self.num_resumes,
         }
         if self.lr_scheduler is not None:
             data["lr_scheduler"] = self.lr_scheduler.state_dict()
@@ -211,6 +213,8 @@ class CheckpointHandler:
         if self.scaler is not None:
             self.maybe_print("Loading gradient scaler.")
             self.scaler.load_state_dict(data["scaler"])
+
+        self.num_resumes = data["resumes"] + 1
 
         # restore random number generator states for all devices
         self.maybe_print("Setting RNG states.")

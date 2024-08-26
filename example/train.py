@@ -105,6 +105,7 @@ for epoch in range(start_epoch, args.max_epochs):
                         "epoch": epoch + step / STEPS_PER_EPOCH,
                         "lr": optimizer.param_groups[0]["lr"],
                         "loss_scale": scaler.get_scale(),
+                        "resumes": checkpoint_handler.num_resumes,
                     }
                 )
 
