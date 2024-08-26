@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --partition=rtx6000
+#SBATCH --partition=a40
 #SBATCH --nodes=1
 #SBATCH --tasks-per-node=1
 #SBATCH --gres=gpu:1

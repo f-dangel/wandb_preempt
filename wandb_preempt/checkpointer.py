@@ -11,6 +11,7 @@ from typing import List, Optional, Set, Type, Union
 
 import wandb
 from torch import cuda, device, get_rng_state, load, save, set_rng_state
+from torch.cuda.amp import GradScaler
 from torch.optim.lr_scheduler import LRScheduler
 from wandb import Api
 
@@ -70,6 +71,7 @@ class CheckpointHandler:
         model,
         optimizer,
         lr_scheduler: Optional[LRScheduler] = None,
+        scaler: Optional[GradScaler] = None,
         savedir: str = "checkpoints",
         verbose: bool = False,
     ) -> None:
@@ -81,6 +83,8 @@ class CheckpointHandler:
             optimizer: The optimizer that is used for training and checkpointed.
             lr_scheduler: The learning rate scheduler that is used for training. If `None`,
                 no learning rate scheduler is assumed. Default: `None`.
+            scaler: The gradient scaler that is used when training in mixed precision. If
+                `None`, no gradient scaler is assumed. Default: `None`.
             savedir: Directory to store checkpoints in. Default: `'checkpoints'`.
             verbose: Whether to print messages about saving and loading checkpoints.
                 Default: `False`
@@ -95,6 +99,7 @@ class CheckpointHandler:
         self.model = model
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
+        self.scaler = scaler
         self.verbose = verbose
         self.marked_preempted = False
 
@@ -148,7 +153,8 @@ class CheckpointHandler:
     def save_checkpoint(self, epoch: int) -> None:
         """Save a checkpoint for a given epoch.
 
-        Stores optimizer, model, and random number generator states.
+        Stores optimizer, model, lr scheduler, gradient scaler, and random number
+        generator states.
 
         Args:
             epoch: The epoch number.
@@ -172,13 +178,17 @@ class CheckpointHandler:
         }
         if self.lr_scheduler is not None:
             data["lr_scheduler"] = self.lr_scheduler.state_dict()
+        if self.scaler is not None:
+            data["scaler"] = self.scaler.state_dict()
+
         self.maybe_print(f"Saving checkpoint {savepath}.")
         save(data, savepath)
 
     def load_latest_checkpoint(self) -> int:
         """Load the latest checkpoint and set random number generator states.
 
-        Updates the model and optimizer states passed at initialization.
+        Updates the model, optimizer, lr scheduler, and gradient scaler states
+        passed at initialization.
 
         Returns:
             The epoch number at which training should resume.
@@ -198,6 +208,9 @@ class CheckpointHandler:
         if self.lr_scheduler is not None:
             self.maybe_print("Loading lr scheduler.")
             self.lr_scheduler.load_state_dict(data["lr_scheduler"])
+        if self.scaler is not None:
+            self.maybe_print("Loading gradient scaler.")
+            self.scaler.load_state_dict(data["scaler"])
 
         # restore random number generator states for all devices
         self.maybe_print("Setting RNG states.")

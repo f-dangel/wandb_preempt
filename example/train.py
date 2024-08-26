@@ -6,7 +6,8 @@ The changes required to integrate checkpointing with wandb are tagged with 'NOTE
 from argparse import ArgumentParser
 
 import wandb
-from torch import cuda, device, manual_seed
+from torch import autocast, bfloat16, cuda, device, manual_seed
+from torch.cuda.amp import GradScaler
 from torch.nn import Conv2d, CrossEntropyLoss, Flatten, Linear, ReLU, Sequential
 from torch.optim import SGD
 from torch.optim.lr_scheduler import CosineAnnealingLR
@@ -59,6 +60,7 @@ loss_func = CrossEntropyLoss().to(DEV)
 print(f"Using SGD with learning rate {args.lr}.")
 optimizer = SGD(model.parameters(), lr=args.lr)
 lr_scheduler = CosineAnnealingLR(optimizer, T_max=args.max_epochs)
+scaler = GradScaler()
 
 # NOTE: Set up a check-pointer which will load and save checkpoints.
 # Pass the run ID to obtain unique file names for the checkpoints.
@@ -67,6 +69,7 @@ checkpoint_handler = CheckpointHandler(
     model,
     optimizer,
     lr_scheduler=lr_scheduler,
+    scaler=scaler,
     savedir=SAVEDIR,
     verbose=VERBOSE,
 )
@@ -86,24 +89,29 @@ for epoch in range(start_epoch, args.max_epochs):
         # normal training loop
         for step, (inputs, target) in enumerate(train_loader):
             optimizer.zero_grad()
-            loss = loss_func(model(inputs.to(DEV)), target.to(DEV))
-            loss.backward()
+
+            with autocast(device_type="cuda", dtype=bfloat16):
+                output = model(inputs.to(DEV))
+                loss = loss_func(output, target.to(DEV))
 
             if step % LOGGING_INTERVAL == 0:
-                loss = loss.item()
-                print(f"Epoch {epoch}, Step {step}, Loss {loss:.5e}")
+                print(f"Epoch {epoch}, Step {step}, Loss {loss.item():.5e}")
                 # NOTE: Only call `wandb.log` inside `CheckpointAtEnd`.
                 # Otherwise, runs might contain duplicate logs.
                 wandb.log(
                     {
                         "global_step": epoch * STEPS_PER_EPOCH + step,
-                        "loss": loss,
+                        "loss": loss.item(),
                         "epoch": epoch + step / STEPS_PER_EPOCH,
                         "lr": optimizer.param_groups[0]["lr"],
+                        "loss_scale": scaler.get_scale(),
                     }
                 )
 
-            optimizer.step()  # update neural network parameters
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)  # update neural network parameters
+            scaler.update()  # update the gradient scaler
+
         lr_scheduler.step()  # update learning rate
 
 wandb.finish()
