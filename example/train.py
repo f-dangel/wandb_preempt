@@ -9,6 +9,7 @@ import wandb
 from torch import cuda, device, manual_seed
 from torch.nn import Conv2d, CrossEntropyLoss, Flatten, Linear, ReLU, Sequential
 from torch.optim import SGD
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader
 from torchvision.datasets import MNIST
 from torchvision.transforms import ToTensor
@@ -57,16 +58,22 @@ model = Sequential(
 loss_func = CrossEntropyLoss().to(DEV)
 print(f"Using SGD with learning rate {args.lr}.")
 optimizer = SGD(model.parameters(), lr=args.lr)
+lr_scheduler = CosineAnnealingLR(optimizer, T_max=args.max_epochs)
 
 # NOTE: Set up a check-pointer which will load and save checkpoints.
 # Pass the run ID to obtain unique file names for the checkpoints.
 checkpoint_handler = CheckpointHandler(
-    run.id, model, optimizer, savedir=SAVEDIR, verbose=VERBOSE
+    run.id,
+    model,
+    optimizer,
+    lr_scheduler=lr_scheduler,
+    savedir=SAVEDIR,
+    verbose=VERBOSE,
 )
 
-# NOTE: If existing, load model and optimizer state from latest checkpoint, set
-# random number generator states, and recover the epoch to start training from.
-# Does nothing if there was no checkpoint.
+# NOTE: If existing, load model, optimizer, and learning rate scheduler state from
+# latest checkpoint, set random number generator states, and recover the epoch to start
+# training from. Does nothing if there was no checkpoint.
 start_epoch = checkpoint_handler.load_latest_checkpoint()
 
 # training
@@ -92,10 +99,12 @@ for epoch in range(start_epoch, args.max_epochs):
                         "global_step": epoch * STEPS_PER_EPOCH + step,
                         "loss": loss,
                         "epoch": epoch + step / STEPS_PER_EPOCH,
+                        "lr": optimizer.param_groups[0]["lr"],
                     }
                 )
 
             optimizer.step()  # update neural network parameters
+        lr_scheduler.step()  # update learning rate
 
 wandb.finish()
 # NOTE Remove all created checkpoints once we are done training. If you want to

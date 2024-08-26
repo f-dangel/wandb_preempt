@@ -11,6 +11,7 @@ from typing import List, Optional, Set, Type, Union
 
 import wandb
 from torch import cuda, device, get_rng_state, load, save, set_rng_state
+from torch.optim.lr_scheduler import LRScheduler
 from wandb import Api
 
 
@@ -68,6 +69,7 @@ class CheckpointHandler:
         run_id: str,
         model,
         optimizer,
+        lr_scheduler: Optional[LRScheduler] = None,
         savedir: str = "checkpoints",
         verbose: bool = False,
     ) -> None:
@@ -77,6 +79,8 @@ class CheckpointHandler:
             run_id: A unique identifier for this run.
             model: The model that is trained and checkpointed.
             optimizer: The optimizer that is used for training and checkpointed.
+            lr_scheduler: The learning rate scheduler that is used for training. If `None`,
+                no learning rate scheduler is assumed. Default: `None`.
             savedir: Directory to store checkpoints in. Default: `'checkpoints'`.
             verbose: Whether to print messages about saving and loading checkpoints.
                 Default: `False`
@@ -90,6 +94,7 @@ class CheckpointHandler:
         self.run_id = run_id
         self.model = model
         self.optimizer = optimizer
+        self.lr_scheduler = lr_scheduler
         self.verbose = verbose
         self.marked_preempted = False
 
@@ -165,6 +170,8 @@ class CheckpointHandler:
             "rng_states": rng_states,
             "epoch": epoch,
         }
+        if self.lr_scheduler is not None:
+            data["lr_scheduler"] = self.lr_scheduler.state_dict()
         self.maybe_print(f"Saving checkpoint {savepath}.")
         save(data, savepath)
 
@@ -188,6 +195,9 @@ class CheckpointHandler:
         self.model.load_state_dict(data["model"])
         self.maybe_print("Loading optimizer.")
         self.optimizer.load_state_dict(data["optimizer"])
+        if self.lr_scheduler is not None:
+            self.maybe_print("Loading lr scheduler.")
+            self.lr_scheduler.load_state_dict(data["lr_scheduler"])
 
         # restore random number generator states for all devices
         self.maybe_print("Setting RNG states.")
