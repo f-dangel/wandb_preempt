@@ -31,9 +31,8 @@ function term_handler()
     echo "$(date) ** Sending kill signal to python process $PID **"
     # Send signal multiple times because it may not be caught if the Python
     # process is writing checkpoints
-    while :
+    while kill -SIGUSR1 "$PID" 2>/dev/null
     do
-        kill -SIGUSR1 "$PID"
         echo "$(date) Sent kill signal"
         sleep 10
     done
