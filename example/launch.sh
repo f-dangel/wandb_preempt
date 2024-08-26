@@ -40,4 +40,6 @@ trap term_handler SIGUSR1
 
 # This will listen to signals, and then call the term handler
 wait "$child"
+# Clean up the pid file
+rm "${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.pid"
 echo "$(date) Reached EOF"
