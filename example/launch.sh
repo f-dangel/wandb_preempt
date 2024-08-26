@@ -20,7 +20,7 @@ MAXWAIT=15
 sleep $((MINWAIT+RANDOM % (MAXWAIT-MINWAIT)))
 
 # NOTE that we need to use srun here, otherwise the Python process won't receive the SIGUSR1 signal
-srun --unbuffered wandb agent --count=1 f-dangel-team/quickstart/y4s6tf5x &
+srun --unbuffered wandb agent --count=1 f-dangel-team/quickstart/evv70pcr &
 child="$!"
 
 # Set up a handler to pass the SIGUSR1 to the python session launched by the agent
