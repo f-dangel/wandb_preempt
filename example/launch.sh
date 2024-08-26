@@ -35,7 +35,7 @@ function term_handler()
     do
         kill -SIGUSR1 "$PID"
         echo "$(date) Sent kill signal"
-        wait 10
+        sleep 10
     done
 }
 
