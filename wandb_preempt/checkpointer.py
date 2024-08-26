@@ -1,6 +1,6 @@
 """Class for handling checkpointing."""
 
-from datetime import now
+from datetime import datetime
 from glob import glob
 from os import environ, getenv, getpid, makedirs, path, remove
 from signal import SIGUSR1, signal
@@ -303,7 +303,7 @@ class CheckpointHandler:
         verbose = self.verbose if verbose is None else verbose
         if verbose:
             elapsed = time() - self.time_created
-            print(f"[{elapsed:.1f} s | {now()}] {msg}")
+            print(f"[{elapsed:.1f} s | {datetime.now()}] {msg}")
 
     def requeue_slurm_job(self):
         """Requeue the Slurm job.
