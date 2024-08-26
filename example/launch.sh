@@ -29,10 +29,14 @@ function term_handler()
     echo "$(date) ** Job $SLURM_JOB_NAME ($SLURM_JOB_ID) received SIGUSR1 at $(date) **"
     PID=$(cat "${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.pid")
     echo "$(date) ** Sending kill signal to python process $PID **"
-    kill -SIGUSR1 "$PID"
-    echo "$(date) Sent kill signal"
-    wait "$child"
-    echo "$(date) Finished waiting for child inside trap handler"
+    # Send signal multiple times because it may not be caught if the Python
+    # process is writing checkpoints
+    while :
+    do
+        kill -SIGUSR1 "$PID"
+        echo "$(date) Sent kill signal"
+        wait 10
+    done
 }
 
 # Call this term_handler function when the job recieves the SIGUSR1 signal
