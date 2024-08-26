@@ -12,6 +12,12 @@ This is work in progress:
 
 - TODO Write a self-contained walk-through.
 
+## Installation
+
+```bash
+pip install git+https://github.com/f-dangel/wandb_preempt.git@main
+```
+
 # Developer guide
 
 This guide describes principles and workflows for developers.
