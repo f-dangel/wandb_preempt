@@ -1,5 +1,5 @@
-entity: ???
-project: ???
+entity: f-dangel-team
+project: quickstart
 name: SGD
 program: train.py
 command:
