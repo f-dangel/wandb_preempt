@@ -81,10 +81,10 @@ class CheckpointHandler:
             run_id: A unique identifier for this run.
             model: The model that is trained and checkpointed.
             optimizer: The optimizer that is used for training and checkpointed.
-            lr_scheduler: The learning rate scheduler that is used for training. If `None`,
-                no learning rate scheduler is assumed. Default: `None`.
-            scaler: The gradient scaler that is used when training in mixed precision. If
-                `None`, no gradient scaler is assumed. Default: `None`.
+            lr_scheduler: The learning rate scheduler that is used for training. If
+                `None`, no learning rate scheduler is assumed. Default: `None`.
+            scaler: The gradient scaler that is used when training in mixed precision.
+                If `None`, no gradient scaler is assumed. Default: `None`.
             savedir: Directory to store checkpoints in. Default: `'checkpoints'`.
             verbose: Whether to print messages about saving and loading checkpoints.
                 Default: `False`
