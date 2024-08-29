@@ -150,7 +150,10 @@ class CheckpointHandler:
         Returns:
             The path to the checkpoint file for this epoch.
         """
-        return path.join(self.savedir, f"{self.run_id}_epoch_{epoch:08g}.pt")
+        checkpoint_dir = path.join(self.savedir, environ["SLURM_ARRAY_JOB_ID"])
+        if not path.exists(checkpoint_dir):
+            makedirs(checkpoint_dir)
+        return path.join(checkpoint_dir, f"{self.run_id}_epoch_{epoch:08g}.pt")
 
     def save_checkpoint(self, epoch: int) -> None:
         """Save a checkpoint for a given epoch.
@@ -249,7 +252,7 @@ class CheckpointHandler:
         Returns:
             A list of paths to all existing checkpoints.
         """
-        return glob(path.join(self.savedir, f"{self.run_id}_epoch_*.pt"))
+        return glob(path.join(self.savedir, "*", f"{self.run_id}_epoch_*.pt"))
 
     @staticmethod
     def checkpointed_run_ids(savedir: str = "checkpoints") -> Set[str]:
