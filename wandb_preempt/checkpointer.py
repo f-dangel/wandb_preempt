@@ -276,10 +276,11 @@ class CheckpointHandler:
         Returns:
             The path to the latest checkpoint, or `None` if no checkpoints exist.
         """
-        if checkpoints := self.all_checkpoints():
-            return sorted(checkpoints)[-1]
-        else:
-            return None
+        checkpoints_sorted = sorted(
+            self.all_checkpoints(),
+            key=lambda path: int(path.split("/")[-1].replace(".pt", "").split("_")[-1]),
+        )
+        return checkpoints_sorted[-1] if checkpoints_sorted else None
 
     def old_checkpoints(self) -> List[str]:
         """Return all but the latest checkpoint.
