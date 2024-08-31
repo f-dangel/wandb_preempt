@@ -151,7 +151,8 @@ class CheckpointHandler:
             The path to the checkpoint file for this epoch.
         """
         checkpoint_dir = path.join(self.savedir, environ["SLURM_ARRAY_JOB_ID"])
-        makedirs(checkpoint_dir, exist_ok=True)
+        if not path.exists(checkpoint_dir):
+            makedirs(checkpoint_dir)
         return path.join(checkpoint_dir, f"{self.run_id}_epoch_{epoch:08g}.pt")
 
     def save_checkpoint(self, epoch: int) -> None:
