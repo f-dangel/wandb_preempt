@@ -8,7 +8,7 @@ from subprocess import run
 from sys import exit
 from time import sleep, time
 from types import FrameType, TracebackType
-from typing import List, Optional, Set, Type, Union
+from typing import Dict, List, Optional, Set, Type, Union
 
 import wandb
 from torch import cuda, device, get_rng_state, load, save, set_rng_state
@@ -73,6 +73,7 @@ class CheckpointHandler:
         optimizer,
         lr_scheduler: Optional[LRScheduler] = None,
         scaler: Optional[GradScaler] = None,
+        metadata: Optional[Dict] = None,
         savedir: str = "checkpoints",
         verbose: bool = False,
     ) -> None:
@@ -86,6 +87,7 @@ class CheckpointHandler:
                 `None`, no learning rate scheduler is assumed. Default: `None`.
             scaler: The gradient scaler that is used when training in mixed precision.
                 If `None`, no gradient scaler is assumed. Default: `None`.
+            metadata: Additional metadata to store in the checkpoint. Default: `None`.
             savedir: Directory to store checkpoints in. Default: `'checkpoints'`.
             verbose: Whether to print messages about saving and loading checkpoints.
                 Default: `False`
@@ -101,6 +103,7 @@ class CheckpointHandler:
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
         self.scaler = scaler
+        self.metadata = {} if metadata is None else metadata
         self.verbose = verbose
         self.marked_preempted = False
         self.num_resumes = 0
@@ -183,6 +186,7 @@ class CheckpointHandler:
             "rng_states": rng_states,
             "epoch": epoch,
             "resumes": self.num_resumes,
+            "metadata": self.metadata,
         }
         if self.lr_scheduler is not None:
             data["lr_scheduler"] = self.lr_scheduler.state_dict()
