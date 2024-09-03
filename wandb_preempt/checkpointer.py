@@ -32,9 +32,9 @@ def get_resume_value(verbose: bool = False) -> str:
     """
     if verbose:
         print("Environment variables containing 'WANDB'")
-        wandb_env_variables = [key for key in environ if "WANDB" in key]
-        for key in wandb_env_variables:
-            print(f"{key}: {environ[key]}")
+        for key, value in environ.items():
+            if "WANDB" in key:
+                print(f"{key}: {value}")
 
     for var in {"WANDB_ENTITY", "WANDB_PROJECT", "WANDB_RUN_ID"}:
         if var not in environ:
