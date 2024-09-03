@@ -47,7 +47,6 @@ run = wandb.init(resume=get_resume_value(verbose=VERBOSE))
 # Set up the data, neural net, loss function, and optimizer
 train_dataset = MNIST("./data", train=True, download=True, transform=ToTensor())
 train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True)
-STEPS_PER_EPOCH = len(train_loader)
 model = Sequential(
     Conv2d(1, 3, kernel_size=5, stride=2),
     ReLU(),
@@ -100,9 +99,7 @@ for epoch in range(start_epoch, args.max_epochs):
                 # Otherwise, runs might contain duplicate logs.
                 wandb.log(
                     {
-                        "global_step": epoch * STEPS_PER_EPOCH + step,
                         "loss": loss.item(),
-                        "epoch": epoch + step / STEPS_PER_EPOCH,
                         "lr": optimizer.param_groups[0]["lr"],
                         "loss_scale": scaler.get_scale(),
                         "resumes": checkpoint_handler.num_resumes,
