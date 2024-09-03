@@ -8,7 +8,7 @@
 #SBATCH --time=00:04:00
 #SBATCH --qos=m5
 #SBATCH --array=0-19
-#SBATCH --signal=B:SIGUSR1@120  # Send signal SIGUSR1 60 seconds before the job hits the time limit
+#SBATCH --signal=B:SIGUSR1@120  # Send signal SIGUSR1 120 seconds before the job hits the time limit
 #SBATCH --open-mode=append
 
 echo "Job $SLURM_JOB_NAME ($SLURM_JOB_ID) begins on $(hostname), submitted from $SLURM_SUBMIT_HOST ($SLURM_CLUSTER_NAME)"
@@ -27,10 +27,13 @@ child="$!"
 function term_handler()
 {
     echo "$(date) ** Job $SLURM_JOB_NAME ($SLURM_JOB_ID) received SIGUSR1 at $(date) **"
+    # The CheckpointHandler will have written the PID of the Python process to a file
+    # so we can send it the SIGUSR1 signal
     PID=$(cat "${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.pid")
     echo "$(date) ** Sending kill signal to python process $PID **"
-    # Send signal multiple times because it may not be caught if the Python
-    # process is writing checkpoints
+    # Send the signal multiple times because it may not be caught if the Python
+    # process happens to be in the middle of writing a checkpoint. The while loop
+    # exits when `kill` errors, which happens when the python process has exited.
     while kill -SIGUSR1 "$PID" 2>/dev/null
     do
         echo "$(date) Sent kill signal"
@@ -41,7 +44,9 @@ function term_handler()
 # Call this term_handler function when the job recieves the SIGUSR1 signal
 trap term_handler SIGUSR1
 
-# This will listen to signals, and then call the term handler
+# The srun command is running in the background, and we need to wait for it to finish.
+# The wait command here is in the foreground and so it will be interrupted by the trap
+# handler when we receive a SIGUSR1 signal.
 wait "$child"
 # Clean up the pid file
 rm "${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.pid"

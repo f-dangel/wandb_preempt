@@ -105,6 +105,8 @@ class CheckpointHandler:
         self.marked_preempted = False
         self.num_resumes = 0
 
+        # Set up signal handler listening for SIGUSR1, when we receive this signal,
+        # we mark the job as about to be pre-empted.
         signal(SIGUSR1, self.mark_preempted)
 
         self.savedir = path.abspath(savedir)
