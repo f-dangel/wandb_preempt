@@ -152,7 +152,7 @@ class CheckpointHandler:
         Returns:
             The path to the checkpoint file for this epoch.
         """
-        checkpoint_dir = path.join(self.savedir, environ["SLURM_ARRAY_JOB_ID"])
+        checkpoint_dir = path.join(self.savedir, environ["SLURM_JOB_ID"])
         if not path.exists(checkpoint_dir):
             makedirs(checkpoint_dir)
         return path.join(checkpoint_dir, f"{self.run_id}_epoch_{epoch:08g}.pt")
