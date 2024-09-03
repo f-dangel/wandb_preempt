@@ -115,6 +115,8 @@ for epoch in range(start_epoch, args.max_epochs):
 
         lr_scheduler.step()  # update learning rate
 
+        # NOTE Put evaluation code here, inside the context
+
 wandb.finish()
 # NOTE Remove all created checkpoints once we are done training. If you want to
 # keep the trained model, remove this line.
