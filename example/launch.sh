@@ -17,7 +17,7 @@ echo ""
 # wait for a random amount of time to make runs start agents at different times
 MINWAIT=0
 MAXWAIT=15
-sleep $((MINWAIT+RANDOM % (MAXWAIT-MINWAIT)))
+sleep $((5 * SLURM_ARRAY_TASK_ID))
 
 # NOTE that we need to use srun here, otherwise the Python process won't receive the SIGUSR1 signal
 srun --unbuffered wandb agent --count=1 f-dangel-team/quickstart/i75puhon &
