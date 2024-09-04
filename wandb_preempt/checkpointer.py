@@ -157,7 +157,10 @@ class CheckpointHandler:
         """
         checkpoint_dir = path.join(self.savedir, environ["SLURM_JOB_ID"])
         if not path.exists(checkpoint_dir):
-            makedirs(checkpoint_dir)
+            # We protect this inside an if statement because sometimes the server is
+            # configured so the checkpoint directory is automatically created without
+            # us having the permissions to create it ourselves.
+            makedirs(checkpoint_dir, exist_ok=True)
         return path.join(checkpoint_dir, f"{self.run_id}_epoch_{epoch:08g}.pt")
 
     def save_checkpoint(self, epoch: int) -> None:
