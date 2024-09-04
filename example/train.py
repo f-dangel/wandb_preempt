@@ -84,7 +84,7 @@ for epoch in range(start_epoch, args.max_epochs):
     # save a checkpoint at the end of the epoch and take care of pre-empting
     # and requeuing the job if SLURM sends a signal to it.
     with CheckpointAtEnd(checkpoint_handler, epoch, verbose=VERBOSE):
-
+        model.train()
         # normal training loop
         for step, (inputs, target) in enumerate(train_loader):
             optimizer.zero_grad()
