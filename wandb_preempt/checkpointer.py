@@ -117,6 +117,7 @@ class CheckpointHandler:
         self.savedir = path.abspath(savedir)
         self.maybe_print(f"Creating checkpoint directory: {self.savedir}.")
         makedirs(self.savedir, exist_ok=True)
+        self.savedir_job = path.join(self.savedir, environ["SLURM_JOB_ID"])
 
         # write Python PID to a file so it can be read by the signal handler from the
         # sbatch script, because it has to send a kill signal with SIGUSR1 to that PID.
@@ -157,13 +158,12 @@ class CheckpointHandler:
         Returns:
             The path to the checkpoint file for this epoch.
         """
-        checkpoint_dir = path.join(self.savedir, environ["SLURM_JOB_ID"])
-        if not path.exists(checkpoint_dir):
+        if not path.exists(self.savedir_job):
             # We protect this inside an if statement because sometimes the server is
             # configured so the checkpoint directory is automatically created without
             # us having the permissions to create it ourselves.
-            makedirs(checkpoint_dir, exist_ok=True)
-        return path.join(checkpoint_dir, f"{self.run_id}_epoch_{epoch:08g}.pt")
+            makedirs(self.savedir_job, exist_ok=True)
+        return path.join(self.savedir_job, f"{self.run_id}_epoch_{epoch:08g}.pt")
 
     def save_checkpoint(self, epoch: int) -> None:
         """Save a checkpoint for a given epoch.
