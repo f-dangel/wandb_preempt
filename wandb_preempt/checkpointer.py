@@ -3,7 +3,7 @@
 from datetime import datetime
 from glob import glob
 from os import environ, getenv, getpid, makedirs, path, remove
-from signal import SIGUSR1, signal
+from signal import SIGTERM, SIGUSR1, signal
 from subprocess import run
 from sys import exit
 from time import sleep, time
@@ -110,7 +110,9 @@ class CheckpointHandler:
 
         # Set up signal handler listening for SIGUSR1, when we receive this signal,
         # we mark the job as about to be pre-empted.
+        # Similarly, try to gracefully end if we receive the SIGTERM signal.
         signal(SIGUSR1, self.mark_preempted)
+        signal(SIGTERM, self.mark_preempted)
 
         self.savedir = path.abspath(savedir)
         self.maybe_print(f"Creating checkpoint directory: {self.savedir}.")
