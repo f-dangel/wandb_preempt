@@ -122,14 +122,14 @@ class CheckpointHandler:
         task_id = getenv("SLURM_ARRAY_TASK_ID")
         self.maybe_print(f"Array ID: {array_id}, Task ID: {task_id}")
 
-        if array_id is not None and task_id is not None:
-            filename = f"{array_id}_{task_id}.pid"
-            pid = str(getpid())
-            self.maybe_print(f"Writing PID {pid} to file {filename}.")
-            with open(filename, "w") as f:
-                f.write(pid)
-        else:
+        if array_id is None or task_id is None:
             raise RuntimeError("One of SLURM_ARRAY_JOB/TASK_ID are not set.")
+
+        filename = f"{array_id}_{task_id}.pid"
+        pid = str(getpid())
+        self.maybe_print(f"Writing PID {pid} to file {filename}.")
+        with open(filename, "w") as f:
+            f.write(pid)
 
     def mark_preempted(self, sig: int, frame: Optional[FrameType]):
         """Mark the checkpointer as pre-empted.
@@ -324,13 +324,13 @@ class CheckpointHandler:
         array_id = getenv("SLURM_ARRAY_JOB_ID")
         task_id = getenv("SLURM_ARRAY_TASK_ID")
 
-        if array_id is not None:
-            slurm_id = array_id if task_id is None else f"{array_id}_{task_id}"
-            cmd = ["scontrol", "requeue", slurm_id]
-            self.maybe_print(f"Requeuing SLURM job with `{' '.join(cmd)}`.")
-            run(cmd, check=True)
-        else:
+        if array_id is None:
             raise RuntimeError("Not a SLURM job. Variable SLURM_ARRAY_JOB_ID not set.")
+
+        slurm_id = array_id if task_id is None else f"{array_id}_{task_id}"
+        cmd = ["scontrol", "requeue", slurm_id]
+        self.maybe_print(f"Requeuing SLURM job with `{' '.join(cmd)}`.")
+        run(cmd, check=True)
 
     def preempt_wandb_run(self):
         """If using Weights & Biases, mark the run as pre-empted."""
