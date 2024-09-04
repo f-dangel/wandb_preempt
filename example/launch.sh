@@ -41,12 +41,16 @@ function term_handler()
     done
 }
 
-# Call this term_handler function when the job recieves the SIGUSR1 signal
+# Call this term_handler function when the job recieves the SIGUSR1 or SIGTERM signal
+# SIGUSR1 is sent by SLURM 120s before the time limit.
+# SIGTERM is sent shortly* before the job is killed (*with interval between the two
+# depending on SLURM  configuration's `GraceTime` value)
 trap term_handler SIGUSR1
+trap term_handler SIGTERM  # NOTE we trap SIGTERM but send SIGUS1 to the Python process
 
 # The srun command is running in the background, and we need to wait for it to finish.
 # The wait command here is in the foreground and so it will be interrupted by the trap
-# handler when we receive a SIGUSR1 signal.
+# handler when we receive a SIGUSR1 or SIGTERM signal.
 wait "$child"
 # Clean up the pid file
 rm "${SLURM_JOB_ID}.pid"
