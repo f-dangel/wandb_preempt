@@ -333,14 +333,12 @@ class CheckpointHandler:
         Raises:
             RuntimeError: If the job is not a Slurm job.
         """
-        array_id = getenv("SLURM_ARRAY_JOB_ID")
-        task_id = getenv("SLURM_ARRAY_TASK_ID")
+        job_id = getenv("SLURM_JOB_ID")
 
-        if array_id is None:
-            raise RuntimeError("Not a SLURM job. Variable SLURM_ARRAY_JOB_ID not set.")
+        if job_id is None:
+            raise RuntimeError("Not a SLURM job. Variable SLURM_JOB_ID not set.")
 
-        slurm_id = array_id if task_id is None else f"{array_id}_{task_id}"
-        cmd = ["scontrol", "requeue", slurm_id]
+        cmd = ["scontrol", "requeue", job_id]
         self.maybe_print(f"Requeuing SLURM job with `{' '.join(cmd)}`.")
         run(cmd, check=True)
 
