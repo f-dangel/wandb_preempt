@@ -15,7 +15,9 @@ echo "Job $SLURM_JOB_NAME ($SLURM_JOB_ID) begins on $(hostname), submitted from 
 echo ""
 
 # wait for a specific time to avoid simultaneous API requests from multiple agents
-sleep $((5 * SLURM_ARRAY_TASK_ID))
+if [ "$SLURM_ARRAY_TASK_COUNT" != "" ]; then
+    sleep $((5 * SLURM_ARRAY_TASK_ID))
+fi
 
 # NOTE that we need to use srun here, otherwise the Python process won't receive the SIGUSR1 signal
 srun --unbuffered wandb agent --count=1 f-dangel-team/quickstart/i75puhon &
