@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from glob import glob
-from os import environ, getenv, getpid, makedirs, path, remove
+from os import environ, getenv, getpid, makedirs, path, remove, rename
 from signal import SIGTERM, SIGUSR1, signal
 from subprocess import run
 from sys import exit
@@ -199,7 +199,14 @@ class CheckpointHandler:
             # configured so the checkpoint directory is automatically created without
             # us having the permissions to create it ourselves.
             makedirs(path.dirname(savepath), exist_ok=True)
-        save(data, savepath)
+
+        # Save to a temporary file first, then move the temporary file to the target
+        # destination. This ensures we don't confuse a partially written file with
+        # a valid checkpoint if we are interrupted halfway through saving. (Moving is
+        # atomic, so it either happens or doesn't.)
+        tmp_savepath = savepath + ".tmp"
+        save(data, tmp_savepath)
+        rename(tmp_savepath, savepath)
 
     def load_latest_checkpoint(self) -> int:
         """Load the latest checkpoint and set random number generator states.
