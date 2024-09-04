@@ -158,11 +158,6 @@ class CheckpointHandler:
         Returns:
             The path to the checkpoint file for this epoch.
         """
-        if not path.exists(self.savedir_job):
-            # We protect this inside an if statement because sometimes the server is
-            # configured so the checkpoint directory is automatically created without
-            # us having the permissions to create it ourselves.
-            makedirs(self.savedir_job, exist_ok=True)
         return path.join(self.savedir_job, f"{self.run_id}_epoch_{epoch:08g}.pt")
 
     def save_checkpoint(self, epoch: int) -> None:
@@ -199,6 +194,11 @@ class CheckpointHandler:
             data["scaler"] = self.scaler.state_dict()
 
         self.maybe_print(f"Saving checkpoint {savepath}.")
+        if not path.exists(path.dirname(savepath)):
+            # We protect this inside an if statement because sometimes the server is
+            # configured so the checkpoint directory is automatically created without
+            # us having the permissions to create it ourselves.
+            makedirs(path.dirname(savepath), exist_ok=True)
         save(data, savepath)
 
     def load_latest_checkpoint(self) -> int:
