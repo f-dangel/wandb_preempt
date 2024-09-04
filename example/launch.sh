@@ -27,7 +27,7 @@ function term_handler()
     echo "$(date) ** Job $SLURM_JOB_NAME ($SLURM_JOB_ID) received SIGUSR1 at $(date) **"
     # The CheckpointHandler will have written the PID of the Python process to a file
     # so we can send it the SIGUSR1 signal
-    PID=$(cat "${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.pid")
+    PID=$(cat "${SLURM_JOB_ID}.pid")
     echo "$(date) ** Sending kill signal to python process $PID **"
     # Send the signal multiple times because it may not be caught if the Python
     # process happens to be in the middle of writing a checkpoint. The while loop
@@ -47,5 +47,5 @@ trap term_handler SIGUSR1
 # handler when we receive a SIGUSR1 signal.
 wait "$child"
 # Clean up the pid file
-rm "${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.pid"
+rm "${SLURM_JOB_ID}.pid"
 echo "$(date) Reached EOF"

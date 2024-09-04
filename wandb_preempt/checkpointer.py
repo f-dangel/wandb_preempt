@@ -93,9 +93,8 @@ class CheckpointHandler:
                 Default: `False`
 
         Raises:
-            RuntimeError: If the environment variables `SLURM_ARRAY_JOB_ID` and
-                `SLURM_ARRAY_TASK_ID` are not set. This indicates we are not running
-                a SLURM task array job.
+            RuntimeError: If the environment variable `SLURM_JOB_ID` is not set.
+                This indicates we are not running a SLURM task array job.
         """
         self.time_created = time()
         self.run_id = run_id
@@ -121,14 +120,15 @@ class CheckpointHandler:
 
         # write Python PID to a file so it can be read by the signal handler from the
         # sbatch script, because it has to send a kill signal with SIGUSR1 to that PID.
+        job_id = getenv("SLURM_JOB_ID")
         array_id = getenv("SLURM_ARRAY_JOB_ID")
         task_id = getenv("SLURM_ARRAY_TASK_ID")
-        self.maybe_print(f"Array ID: {array_id}, Task ID: {task_id}")
+        self.maybe_print(f"Job ID: {job_id}, Array ID: {array_id}, Task ID: {task_id}")
 
-        if array_id is None or task_id is None:
-            raise RuntimeError("One of SLURM_ARRAY_JOB/TASK_ID are not set.")
+        if job_id is None:
+            raise RuntimeError("SLURM_JOB_ID is not set.")
 
-        filename = f"{array_id}_{task_id}.pid"
+        filename = f"{job_id}.pid"
         pid = str(getpid())
         self.maybe_print(f"Writing PID {pid} to file {filename}.")
         with open(filename, "w") as f:
