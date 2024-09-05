@@ -7,8 +7,8 @@ from signal import SIGTERM, SIGUSR1, signal
 from subprocess import run
 from sys import exit
 from time import sleep, time
-from types import FrameType, TracebackType
-from typing import Dict, List, Optional, Set, Type, Union
+from types import FrameType
+from typing import Dict, List, Optional, Set, Union
 
 import wandb
 from torch import cuda, device, get_rng_state, load, save, set_rng_state
@@ -63,7 +63,9 @@ class CheckpointHandler:
     How to use this class:
 
     - Create an instance in your training loop, `handler = CheckpointHandler(...)`.
-    - Wrap each epoch in a `CheckpointAtEnd(handler, ...)` context manager.
+    - At the end of each epoch, call `handler.step()` to save a checkpoint.
+      If the job received the `SIGUSR1` signal, the handler will requeue the at
+      the end of its checkpointing step.
     """
 
     def __init__(
@@ -105,6 +107,7 @@ class CheckpointHandler:
         self.metadata = {} if metadata is None else metadata
         self.verbose = verbose
         self.marked_preempted = False
+        self.step_count = 0
         self.num_resumes = 0
 
         # Set up signal handler listening for SIGUSR1, when we receive this signal,
@@ -137,8 +140,8 @@ class CheckpointHandler:
     def mark_preempted(self, sig: int, frame: Optional[FrameType]):
         """Mark the checkpointer as pre-empted.
 
-        This information can be used by the `CheckpointAtEnd` context manager to stop
-        training after the current epoch.
+        This information can be used by :meth:`step` to stop training after the current
+        epoch.
 
         Args:
             sig: The signal number.
@@ -149,27 +152,24 @@ class CheckpointHandler:
         )
         self.marked_preempted = True
 
-    def checkpoint_path(self, epoch: int) -> str:
-        """Get the path to a checkpoint file for a given epoch.
+    def checkpoint_path(self, counter: int) -> str:
+        """Get the path to a checkpoint file for a given checkpointing step.
 
         Args:
-            epoch: The epoch number.
+            counter: The checkpointing step number.
 
         Returns:
-            The path to the checkpoint file for this epoch.
+            The path to the checkpoint file.
         """
-        return path.join(self.savedir_job, f"{self.run_id}_epoch_{epoch:08g}.pt")
+        return path.join(self.savedir_job, f"{self.run_id}_{counter:08g}.pt")
 
-    def save_checkpoint(self, epoch: int) -> None:
-        """Save a checkpoint for a given epoch.
+    def save_checkpoint(self) -> None:
+        """Save a checkpoint.
 
         Stores optimizer, model, lr scheduler, gradient scaler, and random number
         generator states.
-
-        Args:
-            epoch: The epoch number.
         """
-        savepath = self.checkpoint_path(epoch)
+        savepath = self.checkpoint_path(self.step_count)
 
         # get random number generator states for all devices
         devices = [device("cpu")]
@@ -184,7 +184,7 @@ class CheckpointHandler:
             "model": self.model.state_dict(),
             "optimizer": self.optimizer.state_dict(),
             "rng_states": rng_states,
-            "epoch": epoch,
+            "checkpoint_step": self.step_count,
             "resumes": self.num_resumes,
             "metadata": self.metadata,
         }
@@ -246,7 +246,7 @@ class CheckpointHandler:
             else:
                 set_rng_state(rng_state)
 
-        return data["epoch"] + 1
+        return data["checkpoint_step"] + 1
 
     def remove_checkpoints(self, keep_latest: bool = False):
         """Remove checkpoints.
@@ -270,7 +270,7 @@ class CheckpointHandler:
         Returns:
             A list of paths to all existing checkpoints.
         """
-        return glob(path.join(self.savedir, "*", f"{self.run_id}_epoch_*.pt"))
+        return glob(path.join(self.savedir, "*", f"{self.run_id}_*.pt"))
 
     @staticmethod
     def checkpointed_run_ids(savedir: str = "checkpoints") -> Set[str]:
@@ -283,8 +283,8 @@ class CheckpointHandler:
             A set of run IDs that have at least one checkpoint.
         """
         run_ids = set()
-        for checkpoint in glob(path.join(savedir, "*_epoch_*.pt")):
-            run_id = path.basename(checkpoint).split("_epoch_")[0]
+        for checkpoint in glob(path.join(savedir, "*.pt")):
+            run_id = path.basename(checkpoint).split("_")[0]
             run_ids.add(run_id)
         return run_ids
 
@@ -351,72 +351,22 @@ class CheckpointHandler:
         self.maybe_print("Sleeping for 15 s to give wandb enough time.")
         sleep(15)
 
+    def step(self):
+        """Perform a checkpointing step.
 
-class CheckpointAtEnd:
-    """Context manager for checkpointing at the end.
-
-    Can abort training early if the checkpointer was marked as pre-empted via a
-    `SIGUSR1` signal sent to the Python session.
-    """
-
-    def __init__(
-        self, checkpoint_handler: CheckpointHandler, epoch: int, verbose: bool = False
-    ) -> None:
-        """Initialize the context manager.
-
-        Args:
-            checkpoint_handler: The `CheckpointHandler` instance to use for saving
-                checkpoints.
-            epoch: The current epoch number.
-            verbose: Whether to print messages about saving and loading checkpoints.
-                Default: `False`.
+        Save the checkpoint. If we were pre-empted we requeue the job
+        and exit the training script after saving.
         """
-        self.checkpoint_handler = checkpoint_handler
-        self.epoch = epoch
-        self.verbose = verbose
-
-    def __enter__(self) -> None:
-        """Enter a block."""
-        pass
-
-    def __exit__(
-        self,
-        exc_type: Optional[Type[BaseException]],
-        exc_value: Optional[BaseException],
-        traceback: Optional[TracebackType],
-    ):
-        """Exit a block.
-
-        If everything went normal, save a checkpoint and remove older checkpoints.
-        If other errors occured, remove all checkpoints.
-
-        If the run was marked as pre-empted, try requeuing the slurm job.
-
-        Args:
-            exc_type: The type of the exception that was raised, if any.
-            exc_value: The exception that was raised, if any.
-            traceback: The traceback of the exception that was raised, if any.
-        """
-        # save a checkpoint if everything went normal
-        normal_exit = exc_type is None
-        if normal_exit:
-            self.checkpoint_handler.save_checkpoint(self.epoch)
-
-        # remove all checkpoints if other errors occured
-        self.checkpoint_handler.remove_checkpoints(keep_latest=normal_exit)
+        self.save_checkpoint()
+        # Remove stale checkpoints
+        self.remove_checkpoints(keep_latest=True)
 
         # requeue the job if the run was marked as pre-empted and exit
-        if self.checkpoint_handler.marked_preempted:
+        if self.marked_preempted:
             self.maybe_print("Run was marked as pre-empted via signal.")
-            self.checkpoint_handler.preempt_wandb_run()
-            self.checkpoint_handler.requeue_slurm_job()
+            self.preempt_wandb_run()
+            self.requeue_slurm_job()
             self.maybe_print("Exiting with error code 1.")
             exit(1)
-
-    def maybe_print(self, msg: str) -> None:
-        """Print a message if verbose mode is enabled.
-
-        Args:
-            msg: The message to print.
-        """
-        self.checkpoint_handler.maybe_print(msg, verbose=self.verbose)
+        # Increase the number of steps taken
+        self.step_count += 1

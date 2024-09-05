@@ -15,11 +15,7 @@ from torch.utils.data import DataLoader
 from torchvision.datasets import MNIST
 from torchvision.transforms import ToTensor
 
-from wandb_preempt.checkpointer import (
-    CheckpointAtEnd,
-    CheckpointHandler,
-    get_resume_value,
-)
+from wandb_preempt.checkpointer import CheckpointHandler, get_resume_value
 
 parser = ArgumentParser("Train a simple CNN on MNIST using SGD.")
 parser.add_argument("--lr", type=float, default=0.01, help="SGD's learning rate.")
@@ -80,40 +76,39 @@ start_epoch = checkpoint_handler.load_latest_checkpoint()
 
 # training
 for epoch in range(start_epoch, args.max_epochs):
-    # NOTE: Wrap each epoch in a CheckpointAtEnd context manager which will
-    # save a checkpoint at the end of the epoch and take care of pre-empting
-    # and requeuing the job if SLURM sends a signal to it.
-    with CheckpointAtEnd(checkpoint_handler, epoch, verbose=VERBOSE):
-        model.train()
-        # normal training loop
-        for step, (inputs, target) in enumerate(train_loader):
-            optimizer.zero_grad()
+    model.train()
+    for step, (inputs, target) in enumerate(train_loader):
+        optimizer.zero_grad()
 
-            with autocast(device_type="cuda", dtype=bfloat16):
-                output = model(inputs.to(DEV))
-                loss = loss_func(output, target.to(DEV))
+        with autocast(device_type="cuda", dtype=bfloat16):
+            output = model(inputs.to(DEV))
+            loss = loss_func(output, target.to(DEV))
 
-            if step % LOGGING_INTERVAL == 0:
-                print(f"Epoch {epoch}, Step {step}, Loss {loss.item():.5e}")
-                # NOTE: Only call `wandb.log` inside `CheckpointAtEnd`.
-                # Otherwise, runs might contain duplicate logs.
-                wandb.log(
-                    {
-                        "loss": loss.item(),
-                        "lr": optimizer.param_groups[0]["lr"],
-                        "loss_scale": scaler.get_scale(),
-                        "resumes": checkpoint_handler.num_resumes,
-                    }
-                )
+        if step % LOGGING_INTERVAL == 0:
+            print(f"Epoch {epoch}, Step {step}, Loss {loss.item():.5e}")
+            wandb.log(
+                {
+                    "loss": loss.item(),
+                    "lr": optimizer.param_groups[0]["lr"],
+                    "loss_scale": scaler.get_scale(),
+                    "resumes": checkpoint_handler.num_resumes,
+                }
+            )
 
-            scaler.scale(loss).backward()
-            scaler.step(optimizer)  # update neural network parameters
-            scaler.update()  # update the gradient scaler
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)  # update neural network parameters
+        scaler.update()  # update the gradient scaler
 
-        lr_scheduler.step()  # update learning rate
+    lr_scheduler.step()  # update learning rate
 
-        # NOTE Put validation code here, inside the context
-        # eval(model, ...)
+    # NOTE Put validation code here
+    # eval(model, ...)
+
+    # NOTE Call checkpoint_handler.step() at the end of the epoch to save a checkpoint.
+    # If SLURM sent us a signal that our time for this job is running out, it will now
+    # also take care of pre-empting the wandb job and requeuing the SLURM job, killing
+    # the current python training script to resume with the requeued job.
+    checkpoint_handler.step()
 
 wandb.finish()
 # NOTE Remove all created checkpoints once we are done training. If you want to
