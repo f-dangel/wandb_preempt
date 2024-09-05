@@ -152,16 +152,16 @@ class CheckpointHandler:
         )
         self.marked_preempted = True
 
-    def checkpoint_path(self, epoch: int) -> str:
-        """Get the path to a checkpoint file for a given epoch.
+    def checkpoint_path(self, counter: int) -> str:
+        """Get the path to a checkpoint file for a given checkpointing step.
 
         Args:
-            epoch: The epoch number.
+            counter: The checkpointing step number.
 
         Returns:
-            The path to the checkpoint file for this epoch.
+            The path to the checkpoint file.
         """
-        return path.join(self.savedir_job, f"{self.run_id}_epoch_{epoch:08g}.pt")
+        return path.join(self.savedir_job, f"{self.run_id}_{counter:08g}.pt")
 
     def save_checkpoint(self) -> None:
         """Save a checkpoint.
@@ -184,7 +184,7 @@ class CheckpointHandler:
             "model": self.model.state_dict(),
             "optimizer": self.optimizer.state_dict(),
             "rng_states": rng_states,
-            "epoch": self.step_count,
+            "checkpoint_step": self.step_count,
             "resumes": self.num_resumes,
             "metadata": self.metadata,
         }
@@ -246,7 +246,7 @@ class CheckpointHandler:
             else:
                 set_rng_state(rng_state)
 
-        return data["epoch"] + 1
+        return data["checkpoint_step"] + 1
 
     def remove_checkpoints(self, keep_latest: bool = False):
         """Remove checkpoints.
@@ -270,7 +270,7 @@ class CheckpointHandler:
         Returns:
             A list of paths to all existing checkpoints.
         """
-        return glob(path.join(self.savedir, "*", f"{self.run_id}_epoch_*.pt"))
+        return glob(path.join(self.savedir, "*", f"{self.run_id}_*.pt"))
 
     @staticmethod
     def checkpointed_run_ids(savedir: str = "checkpoints") -> Set[str]:
@@ -283,8 +283,8 @@ class CheckpointHandler:
             A set of run IDs that have at least one checkpoint.
         """
         run_ids = set()
-        for checkpoint in glob(path.join(savedir, "*_epoch_*.pt")):
-            run_id = path.basename(checkpoint).split("_epoch_")[0]
+        for checkpoint in glob(path.join(savedir, "*.pt")):
+            run_id = path.basename(checkpoint).split("_")[0]
             run_ids.add(run_id)
         return run_ids
 
