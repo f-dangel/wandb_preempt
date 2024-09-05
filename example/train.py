@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Train a simple CNN on MNIST using checkpoints, integrated with Weights & Biases.
 
 The changes required to integrate checkpointing with wandb are tagged with 'NOTE'.
