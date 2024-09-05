@@ -183,8 +183,9 @@ class Checkpointer:
         passed at initialization.
 
         Returns:
-            The epoch number at which training should resume, and the extra information
-            that was passed by the user as a dictionary to the :meth:`step` function.
+            step (int): The number of times the checkpoint handler has been stepped.
+            extra_info (dict): extra information that was passed by the user as a
+                dictionary to the :meth:`step` function.
         """
         loadpath = self.latest_checkpoint()
         if loadpath is None:
@@ -215,7 +216,7 @@ class Checkpointer:
             else:
                 set_rng_state(rng_state)
 
-        return data["checkpoint_step"] + 1, data["extra_info"]
+        return data["checkpoint_step"], data["extra_info"]
 
     def remove_checkpoints(self, keep_latest: bool = False):
         """Remove checkpoints.
@@ -332,6 +333,9 @@ class Checkpointer:
                 dictionary is returned when loading the latest checkpoint with
                 :meth:`load_latest_checkpoint`. Default: `None` (empty dictionary).
         """
+        # Increase the number of steps taken
+        self.step_count += 1
+        # Save the checkpoint
         self.save_checkpoint({} if extra_info is None else extra_info)
         # Remove stale checkpoints
         self.remove_checkpoints(keep_latest=True)
@@ -343,5 +347,3 @@ class Checkpointer:
             self.maybe_requeue_slurm_job()
             self.maybe_print("Exiting with error code 1.")
             exit(1)
-        # Increase the number of steps taken
-        self.step_count += 1

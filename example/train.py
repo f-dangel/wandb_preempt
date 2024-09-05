@@ -82,10 +82,10 @@ def main(args):
     # NOTE: If existing, load model, optimizer, and learning rate scheduler state from
     # latest checkpoint, set random number generator states, and recover the epoch to
     # start training from. Does nothing if there was no checkpoint.
-    start_epoch = checkpointer.load_latest_checkpoint()
+    last_epoch = checkpointer.load_latest_checkpoint()
 
     # training
-    for epoch in range(start_epoch, args.epochs):
+    for epoch in range(last_epoch + 1, args.epochs + 1):
         model.train()
         for step, (inputs, target) in enumerate(train_loader):
             optimizer.zero_grad()
