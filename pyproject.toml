@@ -31,7 +31,10 @@ classifiers = [
 ]
 dynamic = ["version"]
 # Dependencies of the project:
-dependencies = []
+dependencies = [
+    "torch",
+    "wandb",
+]
 
 # Require a specific Python version, e.g. Python 2.7 or >= 3.4
 requires-python = ">=3.9"
@@ -64,9 +67,7 @@ lint = [
 
 # Dependencies needed to run the example (comma/line-separated)
 example = [
-    "torch",
     "torchvision",
-    "wandb",
 ]
 
 [tool.setuptools_scm]
