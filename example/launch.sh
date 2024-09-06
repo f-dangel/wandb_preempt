@@ -27,7 +27,7 @@ child="$!"
 function term_handler()
 {
     echo "$(date) ** Job $SLURM_JOB_NAME ($SLURM_JOB_ID) received SIGUSR1 at $(date) **"
-    # The CheckpointHandler will have written the PID of the Python process to a file
+    # The Checkpointer will have written the PID of the Python process to a file
     # so we can send it the SIGUSR1 signal
     PID=$(cat "${SLURM_JOB_ID}.pid")
     echo "$(date) ** Sending kill signal to python process $PID **"

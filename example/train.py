@@ -15,7 +15,7 @@ from torch.utils.data import DataLoader
 from torchvision.datasets import MNIST
 from torchvision.transforms import ToTensor
 
-from wandb_preempt.checkpointer import CheckpointHandler, get_resume_value
+from wandb_preempt.checkpointer import Checkpointer, get_resume_value
 
 parser = ArgumentParser("Train a simple CNN on MNIST using SGD.")
 parser.add_argument("--lr", type=float, default=0.01, help="SGD's learning rate.")
@@ -59,7 +59,7 @@ scaler = GradScaler()
 
 # NOTE: Set up a check-pointer which will load and save checkpoints.
 # Pass the run ID to obtain unique file names for the checkpoints.
-checkpoint_handler = CheckpointHandler(
+checkpointer = Checkpointer(
     run.id,
     model,
     optimizer,
@@ -72,7 +72,7 @@ checkpoint_handler = CheckpointHandler(
 # NOTE: If existing, load model, optimizer, and learning rate scheduler state from
 # latest checkpoint, set random number generator states, and recover the epoch to start
 # training from. Does nothing if there was no checkpoint.
-start_epoch = checkpoint_handler.load_latest_checkpoint()
+start_epoch = checkpointer.load_latest_checkpoint()
 
 # training
 for epoch in range(start_epoch, args.max_epochs):
@@ -91,7 +91,7 @@ for epoch in range(start_epoch, args.max_epochs):
                     "loss": loss.item(),
                     "lr": optimizer.param_groups[0]["lr"],
                     "loss_scale": scaler.get_scale(),
-                    "resumes": checkpoint_handler.num_resumes,
+                    "resumes": checkpointer.num_resumes,
                 }
             )
 
@@ -104,13 +104,13 @@ for epoch in range(start_epoch, args.max_epochs):
     # NOTE Put validation code here
     # eval(model, ...)
 
-    # NOTE Call checkpoint_handler.step() at the end of the epoch to save a checkpoint.
+    # NOTE Call checkpointer.step() at the end of the epoch to save a checkpoint.
     # If SLURM sent us a signal that our time for this job is running out, it will now
     # also take care of pre-empting the wandb job and requeuing the SLURM job, killing
     # the current python training script to resume with the requeued job.
-    checkpoint_handler.step()
+    checkpointer.step()
 
 wandb.finish()
 # NOTE Remove all created checkpoints once we are done training. If you want to
 # keep the trained model, remove this line.
-checkpoint_handler.remove_checkpoints()
+checkpointer.remove_checkpoints()
