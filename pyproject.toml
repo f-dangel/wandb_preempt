@@ -70,6 +70,14 @@ example = [
     "torchvision",
 ]
 
+# Dependencies needed to generate the documentation (comma/line-separated), uses
+# pinned versions to avoid future breakdowns
+doc = [
+    "mkdocs==1.4.3",
+    "mkdocs-material==9.1.17",
+    "mkdocstrings[python]==0.22.0",
+]
+
 [tool.setuptools_scm]
 
 [tool.isort]
