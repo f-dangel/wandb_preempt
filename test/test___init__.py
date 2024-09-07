@@ -10,6 +10,7 @@ NAMES = ["world", "github"]
 IDS = NAMES
 
 
+# TODO Remove this function once we have a unit test that uses the checkpointer code
 @pytest.mark.parametrize("name", NAMES, ids=IDS)
 def test_hello(name: str):
     """Test hello function.
@@ -20,6 +21,7 @@ def test_hello(name: str):
     wandb_preempt.hello(name)
 
 
+# TODO Remove this function once we have a unit test that uses the checkpointer code
 @pytest.mark.expensive
 @pytest.mark.parametrize("name", NAMES, ids=IDS)
 def test_hello_expensive(name: str):

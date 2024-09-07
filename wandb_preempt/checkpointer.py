@@ -55,16 +55,16 @@ def get_resume_value(verbose: bool = False) -> str:
     return resume
 
 
-class CheckpointHandler:
+class Checkpointer:
     """Class for storing, loading, and removing checkpoints.
 
     Can be marked as pre-empted by sending a `SIGUSR1` signal to a Python session.
 
     How to use this class:
 
-    - Create an instance in your training loop, `handler = CheckpointHandler(...)`.
-    - At the end of each epoch, call `handler.step()` to save a checkpoint.
-      If the job received the `SIGUSR1` signal, the handler will requeue the at
+    - Create an instance in your training loop, `checkpointer = Checkpointer(...)`.
+    - At the end of each epoch, call `checkpointer.step()` to save a checkpoint.
+      If the job received the `SIGUSR1` signal, the checkpointer will requeue the at
       the end of its checkpointing step.
     """
 
@@ -79,7 +79,7 @@ class CheckpointHandler:
         savedir: str = "checkpoints",
         verbose: bool = False,
     ) -> None:
-        """Set up a checkpoint handler.
+        """Set up a checkpointer.
 
         Args:
             run_id: A unique identifier for this run.
