@@ -13,6 +13,8 @@ from typing import Dict, List, Optional, Set, Tuple, Union
 import wandb
 from torch import cuda, device, get_rng_state, load, save, set_rng_state
 from torch.cuda.amp import GradScaler
+from torch.nn import Module
+from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
 from wandb import Api
 
@@ -71,8 +73,8 @@ class Checkpointer:
     def __init__(
         self,
         run_id: str,
-        model,
-        optimizer,
+        model: Module,
+        optimizer: Optimizer,
         lr_scheduler: Optional[LRScheduler] = None,
         scaler: Optional[GradScaler] = None,
         savedir: str = "checkpoints",
