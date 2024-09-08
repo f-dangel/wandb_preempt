@@ -7,7 +7,7 @@
 #SBATCH --mem-per-gpu=16G
 #SBATCH --time=00:04:00
 #SBATCH --qos=m5
-#SBATCH --array=0-19
+#SBATCH --array=0-9
 #SBATCH --signal=B:SIGUSR1@120  # Send signal SIGUSR1 120 seconds before the job hits the time limit
 #SBATCH --open-mode=append
 

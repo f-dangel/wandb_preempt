@@ -8,6 +8,7 @@ watch:
 nav:
     - Getting Started: index.md
     - API Documentation: api.md
+    - Walkthroug Example: walkthrough.md
     - Developer Notes: develop.md
 theme:
     name: material
@@ -24,6 +25,7 @@ markdown_extensions:
     - pymdownx.inlinehilite # code highlighting
     - pymdownx.snippets # code highlighting
     - pymdownx.superfences # code highlighting
+    - pymdownx.blocks.details # fold-able content
     - footnotes
 plugins:
     - mkdocstrings:
