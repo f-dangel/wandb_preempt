@@ -8,7 +8,7 @@ watch:
 nav:
     - Getting Started: index.md
     - API Documentation: api.md
-    - Walkthroug Example: walkthrough.md
+    - Walkthrough Example: walkthrough.md
     - Developer Notes: develop.md
 theme:
     name: material

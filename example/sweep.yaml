@@ -17,4 +17,4 @@ parameters:
         min: 1e-3
         max: 1e-1
     max_epochs:
-        value: 150
+        value: 20
