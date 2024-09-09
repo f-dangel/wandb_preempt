@@ -336,11 +336,7 @@ class Checkpointer:
             print(f"[{elapsed:.1f} s | {datetime.now()}] {msg}")
 
     def maybe_requeue_slurm_job(self):
-        """Requeue the SLURM job if we are running in a SLURM session.
-
-        Raises:
-            RuntimeError: If the job is not a Slurm job.
-        """
+        """Requeue the SLURM job if we are running in a SLURM session."""
         if not self.uses_slurm:
             return
 
