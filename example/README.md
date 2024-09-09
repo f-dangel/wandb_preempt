@@ -66,7 +66,9 @@ Navigate to the `wandb` web interface and you should be able to see the sweep:
 
 ![empty sweep](./assets/01_empty_sweep.png)
 
-**Optional step:** To make sure the configuration file works, I will execute a single run locally on my machine as a sanity check. This step is optional and obviously not recommended if your machine's hardware is not beefy enough (note that I specified the `--count=1` flag to carry out only a single run):
+### Optional Step: Local Run
+
+To make sure the configuration file works, I will execute a single run locally on my machine as a sanity check. This step is optional and obviously not recommended if your machine's hardware is not beefy enough (note that I specified the `--count=1` flag to carry out only a single run):
 
 ```bash
 wandb agent --count=1 f-dangel-team/quickstart/aaq70gt8
@@ -266,15 +268,24 @@ wandb: Terminating and syncing runs. Press ctrl-c to kill.
 ```
 ///
 
+On the Weights & Biases web API, we can see the successfully finished run:
+
+![local run](./assets/02_local_run.png)
+
 ## SLURM Launcher
 
+The last step is to launch multiple jobs on a SLURM cluster.
+
+For that, we use the following launch script and insert the wandb agent's command into it. We will explain the script in more detail below; for now our focus is to demonstrate how everything works.
 
 /// details | Details of the SLURM script `example/launch.sh` ([source](https://github.com/f-dangel/wandb_preempt/blob/main/example/launch.sh))
-```sh
+```sh hl_lines="10-12 23"
 --8<-- "example/launch.sh"
 ```
 ///
 
+
+## Details
 The launch script divides into three parts:
 
 1. **SLURM configuration:** The first block specifies the SLURM resources and task array we are about to submit (lines starting with `#SBATCH`). The important configurations are
@@ -282,7 +293,7 @@ The launch script divides into three parts:
     - `--array` (how many jobs will be submitted?), and
     - `--signal` specifications (how much time before the limit will we start pre-empting?)
 
-    **These values are optimized demonstration purposes. You definitely want to tweak them for your use case.**
+    **These values are optimized for demonstration purposes. You definitely want to tweak them for your use case.**
 
     The other configuration flags are resource-specific, and some like the `--partition=a40` will depend on your cluster. In our script, we will request NVIDIA A40 GPUs because they support mixed-precision training in `bfloat16` and is used by many modern training pipelines.
 
