@@ -8,7 +8,7 @@ from subprocess import run
 from sys import exit
 from time import sleep, time
 from types import FrameType
-from typing import Dict, List, Optional, Set, Union
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 import wandb
 from torch import cuda, device, get_rng_state, load, save, set_rng_state
@@ -77,7 +77,6 @@ class Checkpointer:
         optimizer: Optimizer,
         lr_scheduler: Optional[LRScheduler] = None,
         scaler: Optional[GradScaler] = None,
-        metadata: Optional[Dict] = None,
         savedir: str = "checkpoints",
         verbose: bool = False,
     ) -> None:
@@ -91,7 +90,6 @@ class Checkpointer:
                 `None`, no learning rate scheduler is assumed. Default: `None`.
             scaler: The gradient scaler that is used when training in mixed precision.
                 If `None`, no gradient scaler is assumed. Default: `None`.
-            metadata: Additional metadata to store in the checkpoint. Default: `None`.
             savedir: Directory to store checkpoints in. Default: `'checkpoints'`.
             verbose: Whether to print messages about saving and loading checkpoints.
                 Default: `False`
@@ -106,7 +104,6 @@ class Checkpointer:
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
         self.scaler = scaler
-        self.metadata = {} if metadata is None else metadata
         self.verbose = verbose
         self.marked_preempted = False
         self.step_count = 0
@@ -165,11 +162,14 @@ class Checkpointer:
         """
         return path.join(self.savedir_job, f"{self.run_id}_{counter:08g}.pt")
 
-    def save_checkpoint(self) -> None:
+    def save_checkpoint(self, extra_info: Dict) -> None:
         """Save a checkpoint.
 
         Stores optimizer, model, lr scheduler, gradient scaler, and random number
         generator states.
+
+        Args:
+            extra_info: Additional information to store in the checkpoint.
         """
         savepath = self.checkpoint_path(self.step_count)
 
@@ -188,7 +188,7 @@ class Checkpointer:
             "rng_states": rng_states,
             "checkpoint_step": self.step_count,
             "resumes": self.num_resumes,
-            "metadata": self.metadata,
+            "extra_info": extra_info,
         }
         if self.lr_scheduler is not None:
             data["lr_scheduler"] = self.lr_scheduler.state_dict()
@@ -206,18 +206,19 @@ class Checkpointer:
         # destination. This ensures we don't confuse a partially written file with
         # a valid checkpoint if we are interrupted halfway through saving. (Moving is
         # atomic, so it either happens or doesn't.)
-        tmp_savepath = savepath + ".tmp"
+        tmp_savepath = f"{savepath}.tmp"
         save(data, tmp_savepath)
         rename(tmp_savepath, savepath)
 
-    def load_latest_checkpoint(self) -> int:
+    def load_latest_checkpoint(self) -> Tuple[int, Dict]:
         """Load the latest checkpoint and set random number generator states.
 
         Updates the model, optimizer, lr scheduler, and gradient scaler states
         passed at initialization.
 
         Returns:
-            The epoch number at which training should resume.
+            The epoch number at which training should resume, and the extra information
+            that was passed by the user as a dictionary to the :meth:`step` function.
         """
         loadpath = self.latest_checkpoint()
         if loadpath is None:
@@ -248,7 +249,7 @@ class Checkpointer:
             else:
                 set_rng_state(rng_state)
 
-        return data["checkpoint_step"] + 1
+        return data["checkpoint_step"] + 1, data["extra_info"]
 
     def remove_checkpoints(self, keep_latest: bool = False):
         """Remove checkpoints.
@@ -353,13 +354,18 @@ class Checkpointer:
         self.maybe_print("Sleeping for 15 s to give wandb enough time.")
         sleep(15)
 
-    def step(self):
+    def step(self, extra_info: Optional[Dict] = None):
         """Perform a checkpointing step.
 
         Save the checkpoint. If we were pre-empted we requeue the job
         and exit the training script after saving.
+
+        Args:
+            extra_info: Additional information to save in the checkpoint. This
+                dictionary is returned when loading the latest checkpoint with
+                :meth:`load_latest_checkpoint`. Default: `None` (empty dictionary).
         """
-        self.save_checkpoint()
+        self.save_checkpoint({} if extra_info is None else extra_info)
         # Remove stale checkpoints
         self.remove_checkpoints(keep_latest=True)
 
