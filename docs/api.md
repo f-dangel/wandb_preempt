@@ -1,5 +1,3 @@
-::: wandb_preempt.get_resume_value
-
 ::: wandb_preempt.Checkpointer
     options:
         members:
