@@ -30,7 +30,7 @@ def get_parser():
         "--lr", type=float, default=0.01, help="Learning rate. Default: %(default)s"
     )
     parser.add_argument(
-        "--max_epochs", type=int, default=10, help="Num epochs. Default: %(default)s"
+        "--epochs", type=int, default=10, help="Number of epochs. Default: %(default)s"
     )
     parser.add_argument(
         "--batch_size", type=int, default=256, help="Batch size. Default: %(default)s"
@@ -65,7 +65,7 @@ def main(args):
     loss_func = CrossEntropyLoss().to(DEV)
     print(f"Using SGD with learning rate {args.lr}.")
     optimizer = SGD(model.parameters(), lr=args.lr)
-    lr_scheduler = CosineAnnealingLR(optimizer, T_max=args.max_epochs)
+    lr_scheduler = CosineAnnealingLR(optimizer, T_max=args.epochs)
     scaler = GradScaler()
 
     # NOTE: Set up a check-pointer which will load and save checkpoints.
@@ -86,7 +86,7 @@ def main(args):
     start_epoch = checkpointer.load_latest_checkpoint()
 
     # training
-    for epoch in range(start_epoch, args.max_epochs):
+    for epoch in range(start_epoch, args.epochs):
         model.train()
         for step, (inputs, target) in enumerate(train_loader):
             optimizer.zero_grad()
