@@ -150,13 +150,8 @@ def main(args):
     checkpointer.remove_checkpoints()
 
 
-def cli(arg_list=None):
-    r"""Command-line interface for model training."""
-    parser = get_parser()
-    args = parser.parse_args(arg_list)
-    main(args)
-
-
 if __name__ == "__main__":
     # Run as a script
-    cli()
+    parser = get_parser()
+    args = parser.parse_args()
+    main(args)
