@@ -18,7 +18,6 @@ from torchvision.transforms import ToTensor
 
 from wandb_preempt.checkpointer import Checkpointer, get_resume_value
 
-
 LOGGING_INTERVAL = 50  # Num batches between logging to stdout and wandb
 VERBOSE = True  # Enable verbose output
 
