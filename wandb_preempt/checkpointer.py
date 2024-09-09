@@ -1,6 +1,6 @@
 """Class for handling checkpointing."""
 
-from datetime import datetime
+from datetime import date, datetime
 from glob import glob
 from os import environ, getenv, getpid, makedirs, path, remove, rename
 from signal import SIGTERM, SIGUSR1, signal
@@ -8,7 +8,7 @@ from subprocess import run
 from sys import exit
 from time import sleep, time
 from types import FrameType
-from typing import Dict, List, Optional, Set, Union
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 import wandb
 from torch import cuda, device, get_rng_state, load, save, set_rng_state
@@ -77,7 +77,6 @@ class Checkpointer:
         optimizer: Optimizer,
         lr_scheduler: Optional[LRScheduler] = None,
         scaler: Optional[GradScaler] = None,
-        metadata: Optional[Dict] = None,
         savedir: str = "checkpoints",
         verbose: bool = False,
     ) -> None:
@@ -91,14 +90,9 @@ class Checkpointer:
                 `None`, no learning rate scheduler is assumed. Default: `None`.
             scaler: The gradient scaler that is used when training in mixed precision.
                 If `None`, no gradient scaler is assumed. Default: `None`.
-            metadata: Additional metadata to store in the checkpoint. Default: `None`.
             savedir: Directory to store checkpoints in. Default: `'checkpoints'`.
             verbose: Whether to print messages about saving and loading checkpoints.
                 Default: `False`
-
-        Raises:
-            RuntimeError: If the environment variable `SLURM_JOB_ID` is not set.
-                This indicates we are not running a SLURM task array job.
         """
         self.time_created = time()
         self.run_id = run_id
@@ -106,7 +100,6 @@ class Checkpointer:
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
         self.scaler = scaler
-        self.metadata = {} if metadata is None else metadata
         self.verbose = verbose
         self.marked_preempted = False
         self.step_count = 0
@@ -121,23 +114,32 @@ class Checkpointer:
         self.savedir = path.abspath(savedir)
         self.maybe_print(f"Creating checkpoint directory: {self.savedir}.")
         makedirs(self.savedir, exist_ok=True)
-        self.savedir_job = path.join(self.savedir, environ["SLURM_JOB_ID"])
 
-        # write Python PID to a file so it can be read by the signal handler from the
-        # sbatch script, because it has to send a kill signal with SIGUSR1 to that PID.
+        # Detect whether we are running inside a SLURM session
         job_id = getenv("SLURM_JOB_ID")
         array_id = getenv("SLURM_ARRAY_JOB_ID")
         task_id = getenv("SLURM_ARRAY_TASK_ID")
-        self.maybe_print(f"Job ID: {job_id}, Array ID: {array_id}, Task ID: {task_id}")
+        self.maybe_print(
+            f"SLURM job ID: {job_id}, array ID: {array_id}, task ID: {task_id}"
+        )
+        self.uses_slurm = any(var is not None for var in {job_id, array_id, task_id})
 
-        if job_id is None:
-            raise RuntimeError("SLURM_JOB_ID is not set.")
+        # We will create sub-folders in the directory supplied by the user where
+        # checkpoints are stored. If we are on SLURM, we will use the `SLURM_JOB_ID`
+        # variable as name, otherwise we will use the formatted day.
+        self.savedir_job = path.join(
+            self.savedir,
+            f"{environ['SLURM_JOB_ID'] if self.uses_slurm else date.today()}",
+        )
 
-        filename = f"{job_id}.pid"
-        pid = str(getpid())
-        self.maybe_print(f"Writing PID {pid} to file {filename}.")
-        with open(filename, "w") as f:
-            f.write(pid)
+        # write Python PID to a file so it can be read by the signal handler from the
+        # sbatch script, because it has to send a kill signal with SIGUSR1 to that PID.
+        if self.uses_slurm:
+            filename = f"{job_id}.pid"
+            pid = str(getpid())
+            self.maybe_print(f"Writing PID {pid} to file {filename}.")
+            with open(filename, "w") as f:
+                f.write(pid)
 
     def mark_preempted(self, sig: int, frame: Optional[FrameType]):
         """Mark the checkpointer as pre-empted.
@@ -165,11 +167,14 @@ class Checkpointer:
         """
         return path.join(self.savedir_job, f"{self.run_id}_{counter:08g}.pt")
 
-    def save_checkpoint(self) -> None:
+    def save_checkpoint(self, extra_info: Dict) -> None:
         """Save a checkpoint.
 
         Stores optimizer, model, lr scheduler, gradient scaler, and random number
         generator states.
+
+        Args:
+            extra_info: Additional information to store in the checkpoint.
         """
         savepath = self.checkpoint_path(self.step_count)
 
@@ -188,7 +193,7 @@ class Checkpointer:
             "rng_states": rng_states,
             "checkpoint_step": self.step_count,
             "resumes": self.num_resumes,
-            "metadata": self.metadata,
+            "extra_info": extra_info,
         }
         if self.lr_scheduler is not None:
             data["lr_scheduler"] = self.lr_scheduler.state_dict()
@@ -206,18 +211,19 @@ class Checkpointer:
         # destination. This ensures we don't confuse a partially written file with
         # a valid checkpoint if we are interrupted halfway through saving. (Moving is
         # atomic, so it either happens or doesn't.)
-        tmp_savepath = savepath + ".tmp"
+        tmp_savepath = f"{savepath}.tmp"
         save(data, tmp_savepath)
         rename(tmp_savepath, savepath)
 
-    def load_latest_checkpoint(self) -> int:
+    def load_latest_checkpoint(self) -> Tuple[int, Dict]:
         """Load the latest checkpoint and set random number generator states.
 
         Updates the model, optimizer, lr scheduler, and gradient scaler states
         passed at initialization.
 
         Returns:
-            The epoch number at which training should resume.
+            The epoch number at which training should resume, and the extra information
+            that was passed by the user as a dictionary to the :meth:`step` function.
         """
         loadpath = self.latest_checkpoint()
         if loadpath is None:
@@ -248,7 +254,7 @@ class Checkpointer:
             else:
                 set_rng_state(rng_state)
 
-        return data["checkpoint_step"] + 1
+        return data["checkpoint_step"] + 1, data["extra_info"]
 
     def remove_checkpoints(self, keep_latest: bool = False):
         """Remove checkpoints.
@@ -329,18 +335,19 @@ class Checkpointer:
             elapsed = time() - self.time_created
             print(f"[{elapsed:.1f} s | {datetime.now()}] {msg}")
 
-    def requeue_slurm_job(self):
-        """Requeue the Slurm job.
+    def maybe_requeue_slurm_job(self):
+        """Requeue the SLURM job if we are running in a SLURM session."""
+        if not self.uses_slurm:
+            return
 
-        Raises:
-            RuntimeError: If the job is not a Slurm job.
-        """
         job_id = getenv("SLURM_JOB_ID")
+        array_id = getenv("SLURM_ARRAY_JOB_ID")
+        task_id = getenv("SLURM_ARRAY_TASK_ID")
 
-        if job_id is None:
-            raise RuntimeError("Not a SLURM job. Variable SLURM_JOB_ID not set.")
+        uses_array = array_id is None and task_id is None
+        requeue_id = f"{array_id}_{task_id}" if uses_array else job_id
 
-        cmd = ["scontrol", "requeue", job_id]
+        cmd = ["scontrol", "requeue", requeue_id]
         self.maybe_print(f"Requeuing SLURM job with `{' '.join(cmd)}`.")
         run(cmd, check=True)
 
@@ -353,13 +360,18 @@ class Checkpointer:
         self.maybe_print("Sleeping for 15 s to give wandb enough time.")
         sleep(15)
 
-    def step(self):
+    def step(self, extra_info: Optional[Dict] = None):
         """Perform a checkpointing step.
 
         Save the checkpoint. If we were pre-empted we requeue the job
         and exit the training script after saving.
+
+        Args:
+            extra_info: Additional information to save in the checkpoint. This
+                dictionary is returned when loading the latest checkpoint with
+                :meth:`load_latest_checkpoint`. Default: `None` (empty dictionary).
         """
-        self.save_checkpoint()
+        self.save_checkpoint({} if extra_info is None else extra_info)
         # Remove stale checkpoints
         self.remove_checkpoints(keep_latest=True)
 
@@ -367,7 +379,7 @@ class Checkpointer:
         if self.marked_preempted:
             self.maybe_print("Run was marked as pre-empted via signal.")
             self.preempt_wandb_run()
-            self.requeue_slurm_job()
+            self.maybe_requeue_slurm_job()
             self.maybe_print("Exiting with error code 1.")
             exit(1)
         # Increase the number of steps taken
