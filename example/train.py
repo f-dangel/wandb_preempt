@@ -19,6 +19,10 @@ from torchvision.transforms import ToTensor
 from wandb_preempt.checkpointer import Checkpointer, get_resume_value
 
 
+LOGGING_INTERVAL = 50  # Num batches between logging to stdout and wandb
+VERBOSE = True  # Enable verbose output
+
+
 def get_parser():
     r"""Create argument parser."""
     parser = ArgumentParser("Train a simple CNN on MNIST using SGD.")
@@ -26,39 +30,13 @@ def get_parser():
         "--lr", type=float, default=0.01, help="Learning rate. Default: %(default)s"
     )
     parser.add_argument(
-        "--max_epochs",
-        "--max-epochs",
-        type=int,
-        default=10,
-        help="Number of epochs to train for. Default: %(default)s",
+        "--max_epochs", type=int, default=10, help="Num epochs. Default: %(default)s"
     )
     parser.add_argument(
-        "--batch_size",
-        "--batch-size",
-        type=int,
-        default=256,
-        help="Batch size. Default: %(default)s",
+        "--batch_size", type=int, default=256, help="Batch size. Default: %(default)s"
     )
     parser.add_argument(
-        "--logging_interval",
-        "--logging-interval",
-        type=int,
-        default=50,
-        help="Num batches between logging to stdout and wandb. Default: %(default)s",
-    )
-    parser.add_argument(
-        "--checkpoint_dir",
-        "--checkpoint-dir",
-        type=str,
-        default="checkpoints",
-        help="Path to directory where checkpoints will be saved. Default: %(default)s",
-    )
-    parser.add_argument(
-        "--quiet",
-        "-q",
-        action="store_false",
-        dest="verbose",
-        help="Disable verbose output.",
+        "--checkpoint_dir", type=str, default="checkpoints", help="Checkpoint save dir."
     )
     return parser
 
@@ -69,7 +47,7 @@ def main(args):
     DEV = device("cuda" if cuda.is_available() else "cpu")
 
     # NOTE: Figure out the `resume` value and pass it to wandb
-    run = wandb.init(resume=get_resume_value(verbose=args.verbose))
+    run = wandb.init(resume=get_resume_value(verbose=VERBOSE))
 
     # Set up the data, neural net, loss function, and optimizer
     train_dataset = MNIST("./data", train=True, download=True, transform=ToTensor())
@@ -99,7 +77,7 @@ def main(args):
         lr_scheduler=lr_scheduler,
         scaler=scaler,
         savedir=args.checkpoint_dir,
-        verbose=args.verbose,
+        verbose=VERBOSE,
     )
 
     # NOTE: If existing, load model, optimizer, and learning rate scheduler state from
@@ -117,7 +95,7 @@ def main(args):
                 output = model(inputs.to(DEV))
                 loss = loss_func(output, target.to(DEV))
 
-            if step % args.logging_interval == 0:
+            if step % LOGGING_INTERVAL == 0:
                 print(f"Epoch {epoch}, Step {step}, Loss {loss.item():.5e}")
                 wandb.log(
                     {
