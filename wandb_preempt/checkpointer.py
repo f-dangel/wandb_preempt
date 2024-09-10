@@ -189,7 +189,7 @@ class Checkpointer:
         loadpath = self.latest_checkpoint()
         if loadpath is None:
             self.maybe_print("No checkpoint found. Starting from scratch.")
-            return 0
+            return 0, {}
 
         self.maybe_print(f"Loading checkpoint {loadpath}.")
 
