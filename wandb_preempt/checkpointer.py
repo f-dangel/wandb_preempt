@@ -25,10 +25,10 @@ class Checkpointer:
 
     How to use this class:
 
-    - Create an instance in your training loop, `checkpointer = Checkpointer(...)`.
+    - Create an instance of this class `checkpointer = Checkpointer(...)`.
     - At the end of each epoch, call `checkpointer.step()` to save a checkpoint.
-      If the job received the `SIGUSR1` signal, the checkpointer will requeue the at
-      the end of its checkpointing step.
+      If the job received the `SIGUSR1` or `SIGTERM` signal, the checkpointer will
+      requeue the Slurm job at the end of its checkpointing step.
     """
 
     def __init__(
@@ -183,8 +183,9 @@ class Checkpointer:
         passed at initialization.
 
         Returns:
-            The epoch number at which training should resume, and the extra information
-            that was passed by the user as a dictionary to the :meth:`step` function.
+            epoch: The epoch number at which training should resume.
+            extra_info: Extra information that was passed by the user to the `step`
+                function.
         """
         loadpath = self.latest_checkpoint()
         if loadpath is None:
@@ -330,7 +331,8 @@ class Checkpointer:
         Args:
             extra_info: Additional information to save in the checkpoint. This
                 dictionary is returned when loading the latest checkpoint with
-                :meth:`load_latest_checkpoint`. Default: `None` (empty dictionary).
+                `checkpointer.load_latest_checkpoint()`.
+                By default, an empty dictionary is saved.
         """
         self.save_checkpoint({} if extra_info is None else extra_info)
         # Remove stale checkpoints
