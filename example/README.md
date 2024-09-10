@@ -54,9 +54,9 @@ wandb sweep sweep.yaml
 /// details | Output
 ```sh hl_lines="4"
 wandb: Creating sweep from: sweep.yaml
-wandb: Creating sweep with ID: aaq70gt8
-wandb: View sweep at: https://wandb.ai/f-dangel-team/quickstart/sweeps/aaq70gt8
-wandb: Run sweep agent with: wandb agent f-dangel-team/quickstart/aaq70gt8
+wandb: Creating sweep with ID: qmzevsi8
+wandb: View sweep at: https://wandb.ai/f-dangel-team/quickstart/sweeps/qmzevsi8
+wandb: Run sweep agent with: wandb agent f-dangel-team/quickstart/qmzevsi8
 ```
 ///
 
@@ -77,193 +77,185 @@ wandb agent --count=1 f-dangel-team/quickstart/aaq70gt8
 /// details | Training script output
 ```
 wandb: Starting wandb agent 🕵️
-2024-09-09 15:05:49,720 - wandb.wandb_agent - INFO - Running runs: []
-2024-09-09 15:05:49,962 - wandb.wandb_agent - INFO - Agent received command: run
-2024-09-09 15:05:49,963 - wandb.wandb_agent - INFO - Agent starting run with config:
-        lr: 0.0014109383616700757
-        max_epochs: 20
-2024-09-09 15:05:49,966 - wandb.wandb_agent - INFO - About to run command: /usr/bin/env python train.py --lr=0.0014109383616700757 --max_epochs=20
-Environment variables containing 'WANDB'
-WANDB_ENTITY: f-dangel-team
-WANDB_PROJECT: quickstart
-WANDB_SWEEP_ID: aaq70gt8
-WANDB_DIR: ~/wandb_preempt/example
-WANDB_RUN_ID: mxgkpzzn
-WANDB_SWEEP_PARAM_PATH: ~/wandb_preempt/example/wandb/sweep-aaq70gt8/config-mxgkpzzn.yaml
-Agent's run has ID mxgkpzzn and state running. Using resume='allow'.
+2024-09-09 22:16:59,894 - wandb.wandb_agent - INFO - Running runs: []
+2024-09-09 22:17:00,448 - wandb.wandb_agent - INFO - Agent received command: run
+2024-09-09 22:17:00,449 - wandb.wandb_agent - INFO - Agent starting run with config:
+        epochs: 20
+        lr: 0.005417051459795853
+2024-09-09 22:17:00,452 - wandb.wandb_agent - INFO - About to run command: /usr/bin/env python train.py --epochs=20 --lr=0.005417051459795853
+2024-09-09 22:17:05,473 - wandb.wandb_agent - INFO - Running runs: ['lmp9ebp1']
 wandb: Currently logged in as: f-dangel (f-dangel-team). Use `wandb login --relogin` to force relogin
 wandb: Tracking run with wandb version 0.17.9
-wandb: Run data is saved locally in ~/wandb_preempt/example/wandb/run-20240909_150552-mxgkpzzn
+wandb: Run data is saved locally in ~/wandb_preempt/example/wandb/run-20240909_221710-lmp9ebp1
 wandb: Run `wandb offline` to turn off syncing.
-wandb: Syncing run colorful-sweep-3
+wandb: Syncing run denim-sweep-1
 wandb: ⭐️ View project at https://wandb.ai/f-dangel-team/quickstart
-wandb: 🧹 View sweep at https://wandb.ai/f-dangel-team/quickstart/sweeps/aaq70gt8
-wandb: 🚀 View run at https://wandb.ai/f-dangel-team/quickstart/runs/mxgkpzzn
-2024-09-09 15:05:54,989 - wandb.wandb_agent - INFO - Running runs: ['mxgkpzzn']
-Using SGD with learning rate 0.0014109383616700757.
-[0.0 s | 2024-09-09 15:05:55.010675] Creating checkpoint directory: ~/wandb_preempt/example/checkpoints.
-[0.0 s | 2024-09-09 15:05:55.010766] SLURM job ID: None, array ID: None, task ID: None
-[0.0 s | 2024-09-09 15:05:55.010984] No checkpoint found. Starting from scratch.
+wandb: 🧹 View sweep at https://wandb.ai/f-dangel-team/quickstart/sweeps/qmzevsi8
+wandb: 🚀 View run at https://wandb.ai/f-dangel-team/quickstart/runs/lmp9ebp1
+Using SGD with learning rate 0.005417051459795853.
+[0.0 s | 2024-09-09 22:17:14.343841] Creating checkpoint directory: ~/wandb_preempt/example/checkpoints.
+[0.0 s | 2024-09-09 22:17:14.343944] SLURM job ID: None, array ID: None, task ID: None
+[0.0 s | 2024-09-09 22:17:14.344300] No checkpoint found. Starting from scratch.
 Epoch 0, Step 0, Loss 2.31327e+00
-Epoch 0, Step 50, Loss 2.31711e+00
-Epoch 0, Step 100, Loss 2.30655e+00
-Epoch 0, Step 150, Loss 2.30137e+00
-Epoch 0, Step 200, Loss 2.30741e+00
-[2.8 s | 2024-09-09 15:05:57.818613] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000000.pt.
-Epoch 1, Step 0, Loss 2.29989e+00
-Epoch 1, Step 50, Loss 2.31124e+00
-Epoch 1, Step 100, Loss 2.30144e+00
-Epoch 1, Step 150, Loss 2.28741e+00
-Epoch 1, Step 200, Loss 2.30759e+00
-[5.5 s | 2024-09-09 15:06:00.536954] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000001.pt.
-[5.5 s | 2024-09-09 15:06:00.538081] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000000.pt.
-Epoch 2, Step 0, Loss 2.28908e+00
-Epoch 2, Step 50, Loss 2.28920e+00
-Epoch 2, Step 100, Loss 2.29056e+00
-Epoch 2, Step 150, Loss 2.28977e+00
-Epoch 2, Step 200, Loss 2.29214e+00
-[8.2 s | 2024-09-09 15:06:03.259775] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000002.pt.
-[8.3 s | 2024-09-09 15:06:03.260907] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000001.pt.
-Epoch 3, Step 0, Loss 2.28515e+00
-Epoch 3, Step 50, Loss 2.29505e+00
-Epoch 3, Step 100, Loss 2.28214e+00
-Epoch 3, Step 150, Loss 2.27602e+00
-Epoch 3, Step 200, Loss 2.28020e+00
-[11.0 s | 2024-09-09 15:06:05.982865] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000003.pt.
-[11.0 s | 2024-09-09 15:06:05.983939] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000002.pt.
-Epoch 4, Step 0, Loss 2.27190e+00
-Epoch 4, Step 50, Loss 2.28208e+00
-Epoch 4, Step 100, Loss 2.27995e+00
-Epoch 4, Step 150, Loss 2.26419e+00
-Epoch 4, Step 200, Loss 2.26638e+00
-[13.7 s | 2024-09-09 15:06:08.706617] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000004.pt.
-[13.7 s | 2024-09-09 15:06:08.707936] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000003.pt.
-Epoch 5, Step 0, Loss 2.25696e+00
-Epoch 5, Step 50, Loss 2.26390e+00
-Epoch 5, Step 100, Loss 2.25003e+00
-Epoch 5, Step 150, Loss 2.25402e+00
-Epoch 5, Step 200, Loss 2.24690e+00
-[16.4 s | 2024-09-09 15:06:11.447655] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000005.pt.
-[16.4 s | 2024-09-09 15:06:11.448819] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000004.pt.
-Epoch 6, Step 0, Loss 2.24057e+00
-Epoch 6, Step 50, Loss 2.23889e+00
-Epoch 6, Step 100, Loss 2.24205e+00
-Epoch 6, Step 150, Loss 2.23790e+00
-Epoch 6, Step 200, Loss 2.23253e+00
-[19.2 s | 2024-09-09 15:06:14.191520] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000006.pt.
-[19.2 s | 2024-09-09 15:06:14.192684] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000005.pt.
-Epoch 7, Step 0, Loss 2.22399e+00
-Epoch 7, Step 50, Loss 2.20625e+00
-Epoch 7, Step 100, Loss 2.20944e+00
-Epoch 7, Step 150, Loss 2.20490e+00
-Epoch 7, Step 200, Loss 2.20541e+00
-[21.9 s | 2024-09-09 15:06:16.919781] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000007.pt.
-[21.9 s | 2024-09-09 15:06:16.920934] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000006.pt.
-Epoch 8, Step 0, Loss 2.19063e+00
-Epoch 8, Step 50, Loss 2.18892e+00
-Epoch 8, Step 100, Loss 2.17470e+00
-Epoch 8, Step 150, Loss 2.16582e+00
-Epoch 8, Step 200, Loss 2.16229e+00
-[24.6 s | 2024-09-09 15:06:19.642306] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000008.pt.
-[24.6 s | 2024-09-09 15:06:19.643417] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000007.pt.
-Epoch 9, Step 0, Loss 2.15864e+00
-Epoch 9, Step 50, Loss 2.14666e+00
-Epoch 9, Step 100, Loss 2.13153e+00
-Epoch 9, Step 150, Loss 2.13505e+00
-Epoch 9, Step 200, Loss 2.12925e+00
-[27.3 s | 2024-09-09 15:06:22.357240] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000009.pt.
-[27.3 s | 2024-09-09 15:06:22.358962] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000008.pt.
-Epoch 10, Step 0, Loss 2.10835e+00
-Epoch 10, Step 50, Loss 2.10394e+00
-Epoch 10, Step 100, Loss 2.09672e+00
-Epoch 10, Step 150, Loss 2.08576e+00
-Epoch 10, Step 200, Loss 2.10477e+00
-[30.1 s | 2024-09-09 15:06:25.068843] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000010.pt.
-[30.1 s | 2024-09-09 15:06:25.069888] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000009.pt.
-Epoch 11, Step 0, Loss 2.05669e+00
-Epoch 11, Step 50, Loss 2.05382e+00
-Epoch 11, Step 100, Loss 2.03040e+00
-Epoch 11, Step 150, Loss 2.03818e+00
-Epoch 11, Step 200, Loss 2.01292e+00
-[32.8 s | 2024-09-09 15:06:27.767231] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000011.pt.
-[32.8 s | 2024-09-09 15:06:27.768345] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000010.pt.
-Epoch 12, Step 0, Loss 2.02450e+00
-Epoch 12, Step 50, Loss 1.98715e+00
-Epoch 12, Step 100, Loss 2.00718e+00
-Epoch 12, Step 150, Loss 1.99295e+00
-Epoch 12, Step 200, Loss 1.97624e+00
-[35.6 s | 2024-09-09 15:06:30.564774] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000012.pt.
-[35.6 s | 2024-09-09 15:06:30.565946] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000011.pt.
-Epoch 13, Step 0, Loss 1.95026e+00
-Epoch 13, Step 50, Loss 1.94186e+00
-Epoch 13, Step 100, Loss 1.94720e+00
-Epoch 13, Step 150, Loss 1.95091e+00
-Epoch 13, Step 200, Loss 1.96935e+00
-[38.3 s | 2024-09-09 15:06:33.267992] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000013.pt.
-[38.3 s | 2024-09-09 15:06:33.269097] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000012.pt.
-Epoch 14, Step 0, Loss 1.88487e+00
-Epoch 14, Step 50, Loss 1.92402e+00
-Epoch 14, Step 100, Loss 1.93435e+00
-Epoch 14, Step 150, Loss 1.87301e+00
-Epoch 14, Step 200, Loss 1.91263e+00
-[40.9 s | 2024-09-09 15:06:35.931019] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000014.pt.
-[40.9 s | 2024-09-09 15:06:35.932336] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000013.pt.
-Epoch 15, Step 0, Loss 1.88196e+00
-Epoch 15, Step 50, Loss 1.90995e+00
-Epoch 15, Step 100, Loss 1.86447e+00
-Epoch 15, Step 150, Loss 1.88345e+00
-Epoch 15, Step 200, Loss 1.88344e+00
-[43.6 s | 2024-09-09 15:06:38.633177] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000015.pt.
-[43.6 s | 2024-09-09 15:06:38.634305] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000014.pt.
-Epoch 16, Step 0, Loss 1.85623e+00
-Epoch 16, Step 50, Loss 1.88199e+00
-Epoch 16, Step 100, Loss 1.84634e+00
-Epoch 16, Step 150, Loss 1.79202e+00
-Epoch 16, Step 200, Loss 1.84115e+00
-[46.4 s | 2024-09-09 15:06:41.416646] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000016.pt.
-[46.4 s | 2024-09-09 15:06:41.417763] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000015.pt.
-Epoch 17, Step 0, Loss 1.86561e+00
-Epoch 17, Step 50, Loss 1.80409e+00
-Epoch 17, Step 100, Loss 1.81886e+00
-Epoch 17, Step 150, Loss 1.82025e+00
-Epoch 17, Step 200, Loss 1.81553e+00
-[49.2 s | 2024-09-09 15:06:44.194540] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000017.pt.
-[49.2 s | 2024-09-09 15:06:44.195673] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000016.pt.
-Epoch 18, Step 0, Loss 1.80697e+00
-Epoch 18, Step 50, Loss 1.79723e+00
-Epoch 18, Step 100, Loss 1.83584e+00
-Epoch 18, Step 150, Loss 1.81160e+00
-Epoch 18, Step 200, Loss 1.83512e+00
-[52.5 s | 2024-09-09 15:06:47.510459] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000018.pt.
-[52.5 s | 2024-09-09 15:06:47.511873] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000017.pt.
-Epoch 19, Step 0, Loss 1.79649e+00
-Epoch 19, Step 50, Loss 1.82962e+00
-Epoch 19, Step 100, Loss 1.80719e+00
-Epoch 19, Step 150, Loss 1.82502e+00
-Epoch 19, Step 200, Loss 1.79152e+00
-[55.3 s | 2024-09-09 15:06:50.269146] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000019.pt.
-[55.3 s | 2024-09-09 15:06:50.270317] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000018.pt.
+Epoch 0, Step 50, Loss 2.31236e+00
+Epoch 0, Step 100, Loss 2.29828e+00
+Epoch 0, Step 150, Loss 2.28944e+00
+Epoch 0, Step 200, Loss 2.28544e+00
+[2.8 s | 2024-09-09 22:17:17.181593] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000000.pt.
+Epoch 1, Step 0, Loss 2.27385e+00
+Epoch 1, Step 50, Loss 2.27472e+00
+Epoch 1, Step 100, Loss 2.25237e+00
+Epoch 1, Step 150, Loss 2.22541e+00
+Epoch 1, Step 200, Loss 2.21894e+00
+[5.6 s | 2024-09-09 22:17:19.918572] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000001.pt.
+[5.6 s | 2024-09-09 22:17:19.919702] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000000.pt.
+Epoch 2, Step 0, Loss 2.15103e+00
+Epoch 2, Step 50, Loss 2.11397e+00
+Epoch 2, Step 100, Loss 2.02360e+00
+Epoch 2, Step 150, Loss 1.89612e+00
+Epoch 2, Step 200, Loss 1.77511e+00
+[8.3 s | 2024-09-09 22:17:22.654042] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000002.pt.
+[8.3 s | 2024-09-09 22:17:22.655190] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000001.pt.
+Epoch 3, Step 0, Loss 1.64844e+00
+Epoch 3, Step 50, Loss 1.41444e+00
+Epoch 3, Step 100, Loss 1.24010e+00
+Epoch 3, Step 150, Loss 1.09945e+00
+Epoch 3, Step 200, Loss 9.38731e-01
+[11.0 s | 2024-09-09 22:17:25.391665] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000003.pt.
+[11.0 s | 2024-09-09 22:17:25.392811] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000002.pt.
+Epoch 4, Step 0, Loss 8.39498e-01
+Epoch 4, Step 50, Loss 7.73968e-01
+Epoch 4, Step 100, Loss 7.30065e-01
+Epoch 4, Step 150, Loss 5.72235e-01
+Epoch 4, Step 200, Loss 6.52813e-01
+[13.8 s | 2024-09-09 22:17:28.133137] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000004.pt.
+[13.8 s | 2024-09-09 22:17:28.134257] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000003.pt.
+Epoch 5, Step 0, Loss 5.88400e-01
+Epoch 5, Step 50, Loss 5.26665e-01
+Epoch 5, Step 100, Loss 5.13180e-01
+Epoch 5, Step 150, Loss 5.11152e-01
+Epoch 5, Step 200, Loss 5.30249e-01
+[16.5 s | 2024-09-09 22:17:30.880319] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000005.pt.
+[16.5 s | 2024-09-09 22:17:30.881465] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000004.pt.
+Epoch 6, Step 0, Loss 4.68262e-01
+Epoch 6, Step 50, Loss 4.94186e-01
+Epoch 6, Step 100, Loss 5.16372e-01
+Epoch 6, Step 150, Loss 4.25439e-01
+Epoch 6, Step 200, Loss 5.06348e-01
+[19.3 s | 2024-09-09 22:17:33.594644] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000006.pt.
+[19.3 s | 2024-09-09 22:17:33.595731] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000005.pt.
+Epoch 7, Step 0, Loss 4.81532e-01
+Epoch 7, Step 50, Loss 4.62612e-01
+Epoch 7, Step 100, Loss 4.84398e-01
+Epoch 7, Step 150, Loss 4.34298e-01
+Epoch 7, Step 200, Loss 4.44681e-01
+[21.9 s | 2024-09-09 22:17:36.292046] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000007.pt.
+[21.9 s | 2024-09-09 22:17:36.293158] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000006.pt.
+Epoch 8, Step 0, Loss 4.52199e-01
+Epoch 8, Step 50, Loss 4.06567e-01
+Epoch 8, Step 100, Loss 3.89836e-01
+Epoch 8, Step 150, Loss 4.20403e-01
+Epoch 8, Step 200, Loss 4.92639e-01
+[24.7 s | 2024-09-09 22:17:39.035341] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000008.pt.
+[24.7 s | 2024-09-09 22:17:39.036695] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000007.pt.
+Epoch 9, Step 0, Loss 4.22285e-01
+Epoch 9, Step 50, Loss 4.19266e-01
+Epoch 9, Step 100, Loss 3.77887e-01
+Epoch 9, Step 150, Loss 3.27919e-01
+Epoch 9, Step 200, Loss 3.68881e-01
+[27.4 s | 2024-09-09 22:17:41.770130] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000009.pt.
+[27.4 s | 2024-09-09 22:17:41.771950] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000008.pt.
+Epoch 10, Step 0, Loss 3.94362e-01
+Epoch 10, Step 50, Loss 4.10359e-01
+Epoch 10, Step 100, Loss 3.79892e-01
+Epoch 10, Step 150, Loss 4.42654e-01
+Epoch 10, Step 200, Loss 4.29457e-01
+[30.1 s | 2024-09-09 22:17:44.474406] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000010.pt.
+[30.1 s | 2024-09-09 22:17:44.475494] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000009.pt.
+Epoch 11, Step 0, Loss 3.87773e-01
+Epoch 11, Step 50, Loss 4.67186e-01
+Epoch 11, Step 100, Loss 3.57660e-01
+Epoch 11, Step 150, Loss 3.54450e-01
+Epoch 11, Step 200, Loss 3.43293e-01
+[32.8 s | 2024-09-09 22:17:47.191162] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000011.pt.
+[32.8 s | 2024-09-09 22:17:47.192310] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000010.pt.
+Epoch 12, Step 0, Loss 4.69982e-01
+Epoch 12, Step 50, Loss 3.77749e-01
+Epoch 12, Step 100, Loss 4.01224e-01
+Epoch 12, Step 150, Loss 3.48171e-01
+Epoch 12, Step 200, Loss 3.61441e-01
+[35.6 s | 2024-09-09 22:17:49.924267] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000012.pt.
+[35.6 s | 2024-09-09 22:17:49.925361] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000011.pt.
+Epoch 13, Step 0, Loss 3.35668e-01
+Epoch 13, Step 50, Loss 3.34111e-01
+Epoch 13, Step 100, Loss 3.22253e-01
+Epoch 13, Step 150, Loss 3.37382e-01
+Epoch 13, Step 200, Loss 3.90798e-01
+[38.3 s | 2024-09-09 22:17:52.667451] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000013.pt.
+[38.3 s | 2024-09-09 22:17:52.668601] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000012.pt.
+Epoch 14, Step 0, Loss 3.83771e-01
+Epoch 14, Step 50, Loss 3.24402e-01
+Epoch 14, Step 100, Loss 3.12806e-01
+Epoch 14, Step 150, Loss 3.40762e-01
+Epoch 14, Step 200, Loss 4.72378e-01
+[41.0 s | 2024-09-09 22:17:55.393290] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000014.pt.
+[41.1 s | 2024-09-09 22:17:55.394609] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000013.pt.
+Epoch 15, Step 0, Loss 2.78277e-01
+Epoch 15, Step 50, Loss 4.86174e-01
+Epoch 15, Step 100, Loss 3.18030e-01
+Epoch 15, Step 150, Loss 3.39720e-01
+Epoch 15, Step 200, Loss 3.45562e-01
+[43.8 s | 2024-09-09 22:17:58.183117] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000015.pt.
+[43.8 s | 2024-09-09 22:17:58.184218] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000014.pt.
+Epoch 16, Step 0, Loss 4.09605e-01
+Epoch 16, Step 50, Loss 4.02795e-01
+Epoch 16, Step 100, Loss 3.30050e-01
+Epoch 16, Step 150, Loss 3.29713e-01
+Epoch 16, Step 200, Loss 3.47872e-01
+[46.6 s | 2024-09-09 22:18:00.935960] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000016.pt.
+[46.6 s | 2024-09-09 22:18:00.937244] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000015.pt.
+Epoch 17, Step 0, Loss 3.61874e-01
+Epoch 17, Step 50, Loss 4.21045e-01
+Epoch 17, Step 100, Loss 3.68629e-01
+Epoch 17, Step 150, Loss 3.50573e-01
+Epoch 17, Step 200, Loss 4.53324e-01
+[49.3 s | 2024-09-09 22:18:03.630036] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000017.pt.
+[49.3 s | 2024-09-09 22:18:03.631169] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000016.pt.
+Epoch 18, Step 0, Loss 2.75897e-01
+Epoch 18, Step 50, Loss 3.52856e-01
+Epoch 18, Step 100, Loss 3.95981e-01
+Epoch 18, Step 150, Loss 3.01999e-01
+Epoch 18, Step 200, Loss 3.86351e-01
+[52.0 s | 2024-09-09 22:18:06.381923] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000018.pt.
+[52.0 s | 2024-09-09 22:18:06.383072] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000017.pt.
+Epoch 19, Step 0, Loss 3.14332e-01
+Epoch 19, Step 50, Loss 2.94699e-01
+Epoch 19, Step 100, Loss 2.69020e-01
+Epoch 19, Step 150, Loss 3.27822e-01
+Epoch 19, Step 200, Loss 3.05174e-01
+[54.8 s | 2024-09-09 22:18:09.101715] Saving checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000019.pt.
+[54.8 s | 2024-09-09 22:18:09.103077] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000018.pt.
 wandb:
 wandb:
 wandb: Run history:
-wandb:       loss ████████▇█▇▇▇▇▇▇▆▆▆▆▅▅▅▄▄▄▃▃▃▂▃▂▂▁▁▁▁▁▂▁
+wandb:       loss ████▇▇▆▄▃▃▂▂▂▁▂▁▂▁▁▁▁▂▁▁▂▁▁▁▁▁▂▁▁▁▁▁▁▁▁▁
 wandb: loss_scale ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
 wandb:         lr ████████▇▇▇▇▇▇▆▆▆▆▅▅▄▄▄▄▃▃▃▃▂▂▂▂▂▂▁▁▁▁▁▁
 wandb:    resumes ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
 wandb:
 wandb: Run summary:
-wandb:       loss 1.79152
+wandb:       loss 0.30517
 wandb: loss_scale 1.0
-wandb:         lr 1e-05
+wandb:         lr 3e-05
 wandb:    resumes 0
 wandb:
-wandb: 🚀 View run colorful-sweep-3 at: https://wandb.ai/f-dangel-team/quickstart/runs/mxgkpzzn
+wandb: 🚀 View run denim-sweep-1 at: https://wandb.ai/f-dangel-team/quickstart/runs/lmp9ebp1
 wandb: ⭐️ View project at: https://wandb.ai/f-dangel-team/quickstart
 wandb: Synced 6 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
-wandb: Find logs at: ./wandb/run-20240909_150552-mxgkpzzn/logs
+wandb: Find logs at: ./wandb/run-20240909_221710-lmp9ebp1/logs
 wandb: WARNING The new W&B backend becomes opt-out in version 0.18.0; try it out with `wandb.require("core")`! See https://wandb.me/wandb-core for more information.
-[61.0 s | 2024-09-09 15:06:56.003246] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/mxgkpzzn_00000019.pt.
-2024-09-09 15:07:01,045 - wandb.wandb_agent - INFO - Cleaning up finished run: mxgkpzzn
+[62.1 s | 2024-09-09 22:18:16.395233] Removing checkpoint ~/wandb_preempt/example/checkpoints/2024-09-09/lmp9ebp1_00000019.pt.
+2024-09-09 22:18:21,429 - wandb.wandb_agent - INFO - Cleaning up finished run: lmp9ebp1
 wandb: Terminating and syncing runs. Press ctrl-c to kill.
 ```
 ///
@@ -276,13 +268,24 @@ On the Weights & Biases web API, we can see the successfully finished run:
 
 The last step is to launch multiple jobs on a SLURM cluster.
 
-For that, we use the following launch script and insert the wandb agent's command into it. We will explain the script in more detail below; for now our focus is to demonstrate how everything works.
+For that, we use the following launch script and insert the wandb agent's command into it. We will explain the script in more detail below; for now our focus is to launch jobs.
 
 /// details | Details of the SLURM script `example/launch.sh` ([source](https://github.com/f-dangel/wandb_preempt/blob/main/example/launch.sh))
 ```sh hl_lines="10-12 23"
 --8<-- "example/launch.sh"
 ```
 ///
+
+Log into your SLURM cluster, then navigate to the `example` directory and submit jobs to SLURM:
+
+```sh
+sbatch launch.sh
+```
+
+Use `watch squeue --me` to monitor the job queue. You will observe that the jobs will launch and run for a short amount of time before receiving the pre-emption signal from SLURM. After that, they will requeue themselves and pick up from the latest checkpoint, until training is completely finished.
+
+On the Weights & Biases website, you will see the runs transitioning between the states 'Running', 'Preempted', and 'Finished'. Here is an example view:
+
 
 
 ## Details
