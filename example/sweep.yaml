@@ -16,5 +16,5 @@ parameters:
         distribution: log_uniform_values
         min: 1e-3
         max: 1e-1
-    max_epochs:
+    epochs:
         value: 20
