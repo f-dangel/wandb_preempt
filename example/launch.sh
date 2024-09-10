@@ -16,7 +16,7 @@ echo ""
 
 # wait for a specific time to avoid simultaneous API requests from multiple agents
 if [ "$SLURM_ARRAY_TASK_COUNT" != "" ]; then
-    sleep $((5 * SLURM_ARRAY_TASK_ID))
+    sleep $((5 * ( SLURM_ARRAY_TASK_ID - SLURM_ARRAY_TASK_MIN) ))
 fi
 
 # NOTE that we need to use srun here, otherwise the Python process won't receive the SIGUSR1 signal
