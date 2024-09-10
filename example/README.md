@@ -2,7 +2,7 @@
 
 ## Overview
 
-This section explains how to create and launch a preempt-able `wandb` sweep on a SLURM cluster. You have to set up three files:
+This section explains how to create and launch a preempt-able [wandb sweep](https://docs.wandb.ai/guides/sweeps) on a SLURM cluster. You have to set up three files:
 
 1. A training script (e.g. `train.py`) that the sweep will execute multiple times using different hyper-parameters.
 
@@ -22,15 +22,16 @@ cd example
 
 ## Training Script
 
-First up, we need to write a training script that we will sweep over, i.e. call with different hyper-parameters.
+First up, we need to write a training script that we will sweep over. The sweep will call this script with different hyper-parameters to find the hyper-parameters that work best.
 
-For demonstration purposes, we will train a small CNN on MNIST using SGD, and our goal is to find a good learning rate through random search using a `wandb` sweep. To keep things simple and cheap, we fix a batch size and use a (very) small number of epochs. Finally, we also use a learning rate scheduler and mixed-precision training with a gradient scaler. These are overkill for MNIST, of course. But we want to show how these need to be checkpointed. In summary, we will call the training script using the following pattern:
+For demonstration purposes, we will train a small CNN on MNIST using SGD, and our goal is to find a good learning rate through random search using a `wandb` sweep. To keep things simple and cheap, we fix a batch size and use a (very) small number of epochs. Finally, we also use a learning rate scheduler and mixed-precision training with a gradient scaler. These are overkill for MNIST, of course, but important when training large models so we include them here to show how they are checkpointed too. In summary, we will call the training script using the following pattern:
 ```bash
 python train.py --lr=X
 ```
-with `X` some floating point number.
+with `X` being some floating point number that the sweep will search over.
 
-The training script also contains code to checkpoint the training loop at the end of an epoch whenever the Python process receives a `SIGUSR1` signal from the OS. Roughly speaking, we need to create a `Checkpointer` that is responsible for saving and storing checkpoints, listening to signals, and for initiating the job requeue on the cluster. Every time we call the checkpointer's `.step` function, it will save a checkpoint and check whether a signal has been sent that indicates we must pre-empt and requeue. For more details, please expand the code snippet.
+The training script also contains code to checkpoint the training loop at the end of an epoch, so we can resume training after our pre-emptable job is interrupted. Roughly speaking, we need to create a `Checkpointer` that is responsible for saving and storing checkpoints, listening to signals from the Slurm process, and for requeuing the job on the cluster if it runs out of time before it is finished. Every time we call the checkpointer's `.step` method, it will save a checkpoint and check whether a signal has been sent by Slurm that indicates our job is about to be killed and so we must preemptively halt it and requeue the job.
+For more details, please expand the code snippet below.
 
 /// details | Details of the training script `example/train.py` ([source](https://github.com/f-dangel/wandb_preempt/blob/main/example/train.py))
 ```py hl_lines="37-38 40-41"
@@ -42,9 +43,10 @@ The training script also contains code to checkpoint the training loop at the en
 
 Our next goal will be to define and create a sweep.
 
-For that, we need to write a `.yaml` file which specifies how the training script is called, and how the search space looks like. To learn more, have a look at the [Weights & Biases documentation](https://docs.wandb.ai/guides/sweeps/define-sweep-configuration).
+For that, we need to write a `.yaml` file which specifies how the training script is called, and what the search space looks like. To learn more, take a look at the [Weights & Biases documentation](https://docs.wandb.ai/guides/sweeps/define-sweep-configuration).
 
-The following configuration file defines a random search over the learning rate, using a log-uniform search space. Note that you need to modify the `entity` and `project` entries to match with a `wandb` project that you have access to.
+The following configuration file defines a random search over the learning rate, using a log-uniform density for the search space.
+Note that you need to modify the `entity` and `project` entries to match with a `wandb` project that you have access to.
 
 /// details | Details of the sweep configuration `example/sweep.yaml` ([source](https://github.com/f-dangel/wandb_preempt/blob/main/example/sweep.yaml))
 ```yaml hl_lines="1 2"
@@ -52,7 +54,7 @@ The following configuration file defines a random search over the learning rate,
 ```
 ///
 
-Let's create the sweep:
+Let's create a sweep using this configuration:
 ```bash
 wandb sweep sweep.yaml
 ```
@@ -65,15 +67,16 @@ wandb: Run sweep agent with: wandb agent f-dangel-team/quickstart/qmzevsi8
 ```
 ///
 
-The important part of that output is the command in the last line. Copy it for later.
+Each sweep has its own ID (you can have more than one sweep in the same project), so to launch jobs in this sweep that we've just recreated, we'll need to launch them using the correct sweep ID.
+To do this, note the command in the last line of the output—copy this to use later.
 
-Navigate to the `wandb` web interface and you should be able to see the sweep:
+Navigate to the `wandb` web interface and you should be able to see the sweep now exists:
 
 ![empty sweep](./assets/01_empty_sweep.png)
 
 ### Optional Step: Local Run
 
-To make sure the configuration file works, I will execute a single run locally on my machine as a sanity check. This step is optional and obviously not recommended if your machine's hardware is not beefy enough (note that I specified the `--count=1` flag to carry out only a single run):
+To make sure the configuration file works, I will execute a single run locally on my machine as a sanity check. This step is optional and obviously not recommended if your machine's hardware is not beefy enough (note that I use the command from above, but add the `--count=1` flag to carry out only a single run):
 
 ```bash
 wandb agent --count=1 f-dangel-team/quickstart/aaq70gt8
@@ -273,7 +276,8 @@ On the Weights & Biases web API, we can see the successfully finished run:
 
 The last step is to launch multiple jobs on a SLURM cluster.
 
-For that, we use the following launch script and insert the wandb agent's command into it. We will explain the script in more detail below; for now our focus is to launch jobs.
+For that, we use the following launch script. If you are running this yourself, you will need to modify the wandb agent command to be the one we copied before, when the wandb sweep was created. Note that we still include the `--count=1` argument, to ensure each Slurm job in the array completes a single task from the sweep.
+We will explain the script in more detail below; for now our focus is to launch jobs.
 
 /// details | Details of the SLURM script `example/launch.sh` ([source](https://github.com/f-dangel/wandb_preempt/blob/main/example/launch.sh))
 ```sh hl_lines="10-12 23"
@@ -297,13 +301,18 @@ On the Weights & Biases website, you will see the runs transitioning between the
 The launch script divides into three parts:
 
 1. **SLURM configuration:** The first block specifies the SLURM resources and task array we are about to submit (lines starting with `#SBATCH`). The important configurations are
-    - `--time` (how long will a job run?)
+    - `--time` (how long to request the job will run for?)
     - `--array` (how many jobs will be submitted?), and
     - `--signal` specifications (how much time before the limit will we start pre-empting?)
 
-    **These values are optimized for demonstration purposes. You definitely want to tweak them for your use case.**
+    *These values are optimized for demonstration purposes. You definitely want to tweak them for your use case.*
 
-    The other configuration flags are resource-specific, and some like the `--partition=a40` will depend on your cluster. In our script, we will request NVIDIA A40 GPUs because they support mixed-precision training in `bfloat16` and is used by many modern training pipelines.
+    Note that the `--time` request does not need to be the total amount of time the model takes to train, since the `checkpointer` will automatically requeue the job if/when time limit is about to be reached and the training script is still running.
+
+    The `--signal` argument is used to tell the python script that the Slurm job is about to end (using the signal SIGUSR1). The time in the `--signal` argument should be set to (at least) the amount of time (in seconds) between calls to `checkpointer.step()` in your training script.
+    In the example script, we use an epoch-based training routine, and so the time specified in the signal argument needs to be the amount of time taken to complete one training epoch and save the model, or longer.
+
+    The other configuration flags are resource-specific, and some like the `--partition=a40` will depend on your cluster. In our script, we request NVIDIA A40 GPUs because they support mixed-precision training with `bfloat16` that is used by many modern training pipelines.
 
 2. **Printing details and wandb agent launch** This part executes the `wandb agent` on our sweep and puts it into the background so our launch script can start listening to signals from SLURM.
 
