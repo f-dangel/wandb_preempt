@@ -1,11 +1,8 @@
 """wandb_preempt library."""
 
-from wandb_preempt.checkpointer import Checkpointer, get_resume_value
+from wandb_preempt.checkpointer import Checkpointer
 
-__all__ = [
-    "Checkpointer",
-    "get_resume_value",
-]
+__all__ = ["Checkpointer"]
 
 
 # TODO Remove this function once we have a unit test that uses the checkpointer code
