@@ -45,7 +45,7 @@ def main(args):
     manual_seed(0)  # make deterministic
     DEV = device("cuda" if cuda.is_available() else "cpu")
 
-    # NOTE: Figure out the `resume` value and pass it to wandb
+    # NOTE: Allow runs to resume by passing 'allow' to wandb
     run = wandb.init(resume="allow")
 
     # Set up the data, neural net, loss function, and optimizer
