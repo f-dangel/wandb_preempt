@@ -16,7 +16,7 @@ from torch.utils.data import DataLoader
 from torchvision.datasets import MNIST
 from torchvision.transforms import ToTensor
 
-from wandb_preempt.checkpointer import Checkpointer, get_resume_value
+from wandb_preempt.checkpointer import Checkpointer
 
 LOGGING_INTERVAL = 50  # Num batches between logging to stdout and wandb
 VERBOSE = True  # Enable verbose output
@@ -46,7 +46,7 @@ def main(args):
     DEV = device("cuda" if cuda.is_available() else "cpu")
 
     # NOTE: Figure out the `resume` value and pass it to wandb
-    run = wandb.init(resume=get_resume_value(verbose=VERBOSE))
+    run = wandb.init(resume="allow")
 
     # Set up the data, neural net, loss function, and optimizer
     train_dataset = MNIST("./data", train=True, download=True, transform=ToTensor())

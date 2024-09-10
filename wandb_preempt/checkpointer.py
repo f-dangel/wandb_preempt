@@ -16,45 +16,6 @@ from torch.cuda.amp import GradScaler
 from torch.nn import Module
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
-from wandb import Api
-
-
-def get_resume_value(verbose: bool = False) -> str:
-    """Return the `resume` value a the agent's run.
-
-    Args:
-        verbose: Whether to print information to the command line. Default: `False`.
-
-    Returns:
-        The run's resume value. Either `'must'` or `'allow'`.
-
-    Raises:
-        RuntimeError: If the environment variables `WANDB_ENTITY`, `WANDB_PROJECT`, or
-            `WANDB_RUN_ID`, which are usually set by a wandb agent, are not set.
-    """
-    if verbose:
-        print("Environment variables containing 'WANDB'")
-        for key, value in environ.items():
-            if "WANDB" in key:
-                print(f"{key}: {value}")
-
-    for var in {"WANDB_ENTITY", "WANDB_PROJECT", "WANDB_RUN_ID"}:
-        if var not in environ:
-            raise RuntimeError(f"Environment variable {var!r} was not set.")
-
-    entity = environ["WANDB_ENTITY"]
-    project = environ["WANDB_PROJECT"]
-    run_id = environ["WANDB_RUN_ID"]
-
-    run = Api().run(f"{entity}/{project}/{run_id}")
-    resume = "must" if run.state == "preempted" else "allow"
-    if verbose:
-        print(
-            f"Agent's run has ID {run.id} and state {run.state}."
-            + f" Using resume={resume!r}."
-        )
-
-    return resume
 
 
 class Checkpointer:
