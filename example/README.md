@@ -62,8 +62,8 @@ wandb sweep sweep.yaml
 ```sh hl_lines="4"
 wandb: Creating sweep from: sweep.yaml
 wandb: Creating sweep with ID: qmzevsi8
-wandb: View sweep at: https://wandb.ai/f-dangel-team/quickstart/sweeps/qmzevsi8
-wandb: Run sweep agent with: wandb agent f-dangel-team/quickstart/qmzevsi8
+wandb: View sweep at: https://wandb.ai/f-dangel-team/example-preemptable-sweep/sweeps/qmzevsi8
+wandb: Run sweep agent with: wandb agent f-dangel-team/example-preemptable-sweep/qmzevsi8
 ```
 ///
 
@@ -79,7 +79,7 @@ Navigate to the `wandb` web interface and you should be able to see the sweep no
 To make sure the configuration file works, I will execute a single run locally on my machine as a sanity check. This step is optional and obviously not recommended if your machine's hardware is not beefy enough (note that I use the command from above, but add the `--count=1` flag to carry out only a single run):
 
 ```bash
-wandb agent --count=1 f-dangel-team/quickstart/aaq70gt8
+wandb agent --count=1 f-dangel-team/example-preemptable-sweep/aaq70gt8
 ```
 
 /// details | Training script output
@@ -97,9 +97,9 @@ wandb: Tracking run with wandb version 0.17.9
 wandb: Run data is saved locally in ~/wandb_preempt/example/wandb/run-20240909_221710-lmp9ebp1
 wandb: Run `wandb offline` to turn off syncing.
 wandb: Syncing run denim-sweep-1
-wandb: ⭐️ View project at https://wandb.ai/f-dangel-team/quickstart
-wandb: 🧹 View sweep at https://wandb.ai/f-dangel-team/quickstart/sweeps/qmzevsi8
-wandb: 🚀 View run at https://wandb.ai/f-dangel-team/quickstart/runs/lmp9ebp1
+wandb: ⭐️ View project at https://wandb.ai/f-dangel-team/example-preemptable-sweep
+wandb: 🧹 View sweep at https://wandb.ai/f-dangel-team/example-preemptable-sweep/sweeps/qmzevsi8
+wandb: 🚀 View run at https://wandb.ai/f-dangel-team/example-preemptable-sweep/runs/lmp9ebp1
 Using SGD with learning rate 0.005417051459795853.
 [0.0 s | 2024-09-09 22:17:14.343841] Creating checkpoint directory: ~/wandb_preempt/example/checkpoints.
 [0.0 s | 2024-09-09 22:17:14.343944] SLURM job ID: None, array ID: None, task ID: None
@@ -257,8 +257,8 @@ wandb: loss_scale 1.0
 wandb:         lr 3e-05
 wandb:    resumes 0
 wandb:
-wandb: 🚀 View run denim-sweep-1 at: https://wandb.ai/f-dangel-team/quickstart/runs/lmp9ebp1
-wandb: ⭐️ View project at: https://wandb.ai/f-dangel-team/quickstart
+wandb: 🚀 View run denim-sweep-1 at: https://wandb.ai/f-dangel-team/example-preemptable-sweep/runs/lmp9ebp1
+wandb: ⭐️ View project at: https://wandb.ai/f-dangel-team/example-preemptable-sweep
 wandb: Synced 6 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
 wandb: Find logs at: ./wandb/run-20240909_221710-lmp9ebp1/logs
 wandb: WARNING The new W&B backend becomes opt-out in version 0.18.0; try it out with `wandb.require("core")`! See https://wandb.me/wandb-core for more information.

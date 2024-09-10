@@ -1,5 +1,5 @@
 entity: f-dangel-team
-project: quickstart
+project: example-preemptable-sweep
 name: SGD
 program: train.py
 command:
