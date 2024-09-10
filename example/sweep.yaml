@@ -1,4 +1,3 @@
-entity: f-dangel-team
 project: example-preemptable-sweep
 name: SGD
 program: train.py

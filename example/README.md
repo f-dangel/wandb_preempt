@@ -46,7 +46,7 @@ Our next goal will be to define and create a sweep.
 For that, we need to write a `.yaml` file which specifies how the training script is called, and what the search space looks like. To learn more, take a look at the [Weights & Biases documentation](https://docs.wandb.ai/guides/sweeps/define-sweep-configuration).
 
 The following configuration file defines a random search over the learning rate, using a log-uniform density for the search space.
-Note that you need to modify the `entity` and `project` entries to match with a `wandb` project that you have access to.
+By default, the example config will create a new project called `example-preemptable-sweep` owned by your default wandb entity (controlled by your [Default team setting](https://wandb.ai/settings)).
 
 /// details | Details of the sweep configuration `example/sweep.yaml` ([source](https://github.com/f-dangel/wandb_preempt/blob/main/example/sweep.yaml))
 ```yaml hl_lines="1 2"
