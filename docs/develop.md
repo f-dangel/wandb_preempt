@@ -41,5 +41,9 @@ via `make`:
 
 We use the [Google docstring
 convention](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html)
-and `mkdocs` which allows using markdown syntax in a docstring to achieve
-formatting. To build the docs, run `mkdocs serve` in the repository root.
+and [mkdocs](https://www.mkdocs.org/) which allows using markdown syntax in a docstring
+to achieve formatting. To build the docs, install the documentation requirements
+```bash
+pip install -e ."[doc]"
+```
+and run `mkdocs serve` from the repository root.
