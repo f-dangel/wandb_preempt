@@ -305,7 +305,7 @@ class Checkpointer:
         array_id = getenv("SLURM_ARRAY_JOB_ID")
         task_id = getenv("SLURM_ARRAY_TASK_ID")
 
-        uses_array = array_id is None and task_id is None
+        uses_array = array_id is not None and task_id is not None
         requeue_id = f"{array_id}_{task_id}" if uses_array else job_id
 
         cmd = ["scontrol", "requeue", requeue_id]
