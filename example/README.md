@@ -12,6 +12,11 @@ This section explains how to create and launch a preempt-able `wandb` sweep on a
 
 The repository's [`example`](https://github.com/f-dangel/wandb_preempt/tree/main/example) directory contains examples for each of these files, and here we will demonstrate how to make them work together. We will operate inside the example directory, so let's navigate to it:
 ```bash
+# If you haven't already, you'll need to clone the repository first
+git clone git@github.com:f-dangel/wandb_preempt.git
+cd wandb_preempt
+
+# Then navigate to the example directory within the repo
 cd example
 ```
 
