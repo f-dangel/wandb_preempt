@@ -26,7 +26,7 @@ child="$!"
 # Set up a handler to pass the SIGUSR1 to the python session launched by the agent
 function term_handler()
 {
-    echo "$(date) ** Job $SLURM_JOB_NAME ($SLURM_JOB_ID) received SIGUSR1 at $(date) **"
+    echo "$(date) ** Job $SLURM_JOB_NAME ($SLURM_JOB_ID) received SIGUSR1 **"
     # The Checkpointer will have written the PID of the Python process to a file
     # so we can send it the SIGUSR1 signal
     PID=$(cat "${SLURM_JOB_ID}.pid")
@@ -36,17 +36,18 @@ function term_handler()
     # exits when `kill` errors, which happens when the python process has exited.
     while kill -SIGUSR1 "$PID" 2>/dev/null
     do
-        echo "$(date) Sent kill signal"
+        echo "$(date) Sent SIGUSR1 signal to python"
         sleep 10
     done
 }
 
 # Call this term_handler function when the job recieves the SIGUSR1 or SIGTERM signal
-# SIGUSR1 is sent by SLURM 120s before the time limit.
-# SIGTERM is sent shortly* before the job is killed (*with interval between the two
-# depending on SLURM  configuration's `GraceTime` value)
+# SIGUSR1 is sent by SLURM 120s before the time limit, thanks to the SBATCH --signal=...
+# setting in the header.
+# SIGTERM is sent shortly* before the job is killed (*with interval between the signal
+# and being properly killed depending on SLURM cluster's `GraceTime` value)
 trap term_handler SIGUSR1
-trap term_handler SIGTERM  # NOTE we trap SIGTERM but send SIGUS1 to the Python process
+trap term_handler SIGTERM  # NOTE we trap SIGTERM but send SIGUSR1 to the Python process
 
 # The srun command is running in the background, and we need to wait for it to finish.
 # The wait command here is in the foreground and so it will be interrupted by the trap
