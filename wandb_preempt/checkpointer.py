@@ -25,10 +25,10 @@ class Checkpointer:
 
     How to use this class:
 
-    - Create an instance in your training loop, `checkpointer = Checkpointer(...)`.
+    - Create an instance of this class `checkpointer = Checkpointer(...)`.
     - At the end of each epoch, call `checkpointer.step()` to save a checkpoint.
-      If the job received the `SIGUSR1` signal, the checkpointer will requeue the at
-      the end of its checkpointing step.
+      If the job received the `SIGUSR1` or `SIGTERM` signal, the checkpointer will
+      requeue the Slurm job at the end of its checkpointing step.
     """
 
     def __init__(
@@ -113,7 +113,8 @@ class Checkpointer:
             frame: The current stack frame.
         """
         self.maybe_print(
-            f"Got signal {sig}. Marking as pre-empted. This will be the last epoch."
+            f"Received signal {sig}. Marking as pre-empted and will halt and requeue"
+            " the job at next call of checkpointer.step()."
         )
         self.marked_preempted = True
 
@@ -194,13 +195,14 @@ class Checkpointer:
             **kwargs: Additional keyword arguments to pass to the `torch.load` function.
 
         Returns:
-            The epoch number at which training should resume, and the extra information
-            that was passed by the user as a dictionary to the :meth:`step` function.
+            epoch: The epoch number at which training should resume.
+            extra_info: Extra information that was passed by the user to the `step`
+                function.
         """
         loadpath = self.latest_checkpoint()
         if loadpath is None:
             self.maybe_print("No checkpoint found. Starting from scratch.")
-            return 0
+            return 0, {}
 
         self.maybe_print(f"Loading checkpoint {loadpath}.")
 
@@ -216,7 +218,7 @@ class Checkpointer:
             self.maybe_print("Loading gradient scaler.")
             self.scaler.load_state_dict(data["scaler"])
 
-        self.step_count = data["checkpoint_step"]
+        self.step_count = data["checkpoint_step"] + 1
         self.num_resumes = data["resumes"] + 1
 
         # restore random number generator states for all devices
@@ -227,7 +229,7 @@ class Checkpointer:
             else:
                 set_rng_state(rng_state)
 
-        return self.step_count + 1, data["extra_info"]
+        return self.step_count, data["extra_info"]
 
     def remove_checkpoints(self, keep_latest: bool = False):
         """Remove checkpoints.
@@ -317,7 +319,7 @@ class Checkpointer:
         array_id = getenv("SLURM_ARRAY_JOB_ID")
         task_id = getenv("SLURM_ARRAY_TASK_ID")
 
-        uses_array = array_id is None and task_id is None
+        uses_array = array_id is not None and task_id is not None
         requeue_id = f"{array_id}_{task_id}" if uses_array else job_id
 
         cmd = ["scontrol", "requeue", requeue_id]
@@ -342,7 +344,8 @@ class Checkpointer:
         Args:
             extra_info: Additional information to save in the checkpoint. This
                 dictionary is returned when loading the latest checkpoint with
-                :meth:`load_latest_checkpoint`. Default: `None` (empty dictionary).
+                `checkpointer.load_latest_checkpoint()`.
+                By default, an empty dictionary is saved.
         """
         self.save_checkpoint({} if extra_info is None else extra_info)
         # Remove stale checkpoints

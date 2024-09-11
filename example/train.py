@@ -26,10 +26,10 @@ def get_parser():
     r"""Create argument parser."""
     parser = ArgumentParser("Train a simple CNN on MNIST using SGD.")
     parser.add_argument(
-        "--lr", type=float, default=0.01, help="Learning rate. Default: %(default)s"
+        "--lr_max", type=float, default=0.01, help="Learning rate. Default: %(default)s"
     )
     parser.add_argument(
-        "--epochs", type=int, default=10, help="Number of epochs. Default: %(default)s"
+        "--epochs", type=int, default=20, help="Number of epochs. Default: %(default)s"
     )
     parser.add_argument(
         "--batch_size", type=int, default=256, help="Batch size. Default: %(default)s"
@@ -62,8 +62,8 @@ def main(args):
         Linear(50, 10),
     ).to(DEV)
     loss_func = CrossEntropyLoss().to(DEV)
-    print(f"Using SGD with learning rate {args.lr}.")
-    optimizer = SGD(model.parameters(), lr=args.lr)
+    print(f"Using SGD with learning rate {args.lr_max}.")
+    optimizer = SGD(model.parameters(), lr=args.lr_max)
     lr_scheduler = CosineAnnealingLR(optimizer, T_max=args.epochs)
     scaler = GradScaler()
 
@@ -82,7 +82,7 @@ def main(args):
     # NOTE: If existing, load model, optimizer, and learning rate scheduler state from
     # latest checkpoint, set random number generator states, and recover the epoch to
     # start training from. Does nothing if there was no checkpoint.
-    start_epoch = checkpointer.load_latest_checkpoint()
+    start_epoch, _ = checkpointer.load_latest_checkpoint()
 
     # training
     for epoch in range(start_epoch, args.epochs):
@@ -101,6 +101,7 @@ def main(args):
                         "loss": loss.item(),
                         "lr": optimizer.param_groups[0]["lr"],
                         "loss_scale": scaler.get_scale(),
+                        "epoch": epoch,
                         "resumes": checkpointer.num_resumes,
                     }
                 )

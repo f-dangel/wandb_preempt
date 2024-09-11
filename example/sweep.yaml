@@ -1,5 +1,4 @@
-entity: f-dangel-team
-project: quickstart
+project: example-preemptable-sweep
 name: SGD
 program: train.py
 command:
@@ -12,9 +11,9 @@ metric:
     name: loss
 method: random
 parameters:
-    lr:
+    lr_max:
         distribution: log_uniform_values
         min: 1e-3
         max: 1e-1
-    max_epochs:
-        value: 150
+    epochs:
+        value: 20
