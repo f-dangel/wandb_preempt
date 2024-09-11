@@ -29,7 +29,7 @@ def get_parser():
         "--lr_max", type=float, default=0.01, help="Learning rate. Default: %(default)s"
     )
     parser.add_argument(
-        "--epochs", type=int, default=10, help="Number of epochs. Default: %(default)s"
+        "--epochs", type=int, default=15, help="Number of epochs. Default: %(default)s"
     )
     parser.add_argument(
         "--batch_size", type=int, default=256, help="Batch size. Default: %(default)s"
