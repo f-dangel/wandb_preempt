@@ -179,7 +179,7 @@ class Checkpointer:
 
     def load_latest_checkpoint(
         self, weights_only: bool = True, **kwargs
-    ) -> Tuple[int, Dict]:
+    ) -> Tuple[Union[int, None], Dict]:
         """Load the latest checkpoint and set random number generator states.
 
         Updates the model, optimizer, lr scheduler, and gradient scaler states
@@ -195,14 +195,16 @@ class Checkpointer:
             **kwargs: Additional keyword arguments to pass to the `torch.load` function.
 
         Returns:
-            epoch: The epoch number at which training should resume.
+            loaded_step: The index of the checkpoint that was loaded, or `None` if no
+                checkpoint was found.
             extra_info: Extra information that was passed by the user to the `step`
-                function.
+                function when the checkpoint was saved, or an empty dictionary if there
+                is no extra information.
         """
         loadpath = self.latest_checkpoint()
         if loadpath is None:
             self.maybe_print("No checkpoint found. Starting from scratch.")
-            return 0, {}
+            return None, {}
 
         self.maybe_print(f"Loading checkpoint {loadpath}.")
 
@@ -229,7 +231,10 @@ class Checkpointer:
             else:
                 set_rng_state(rng_state)
 
-        return self.step_count, data["extra_info"]
+        # N.B. We return the checkpoint step index of the saved file that was loaded,
+        # but the checkpointer.step_count is one larger than that because we increment
+        # it after saving - it tracks the index of the next checkpoint to be saved.
+        return data["checkpoint_step"], data["extra_info"]
 
     def remove_checkpoints(self, keep_latest: bool = False):
         """Remove checkpoints.
