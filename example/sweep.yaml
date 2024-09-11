@@ -11,7 +11,7 @@ metric:
     name: loss
 method: random
 parameters:
-    lr:
+    lr_max:
         distribution: log_uniform_values
         min: 1e-3
         max: 1e-1

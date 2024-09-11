@@ -26,7 +26,7 @@ def get_parser():
     r"""Create argument parser."""
     parser = ArgumentParser("Train a simple CNN on MNIST using SGD.")
     parser.add_argument(
-        "--lr", type=float, default=0.01, help="Learning rate. Default: %(default)s"
+        "--lr_max", type=float, default=0.01, help="Learning rate. Default: %(default)s"
     )
     parser.add_argument(
         "--epochs", type=int, default=10, help="Number of epochs. Default: %(default)s"
@@ -62,8 +62,8 @@ def main(args):
         Linear(50, 10),
     ).to(DEV)
     loss_func = CrossEntropyLoss().to(DEV)
-    print(f"Using SGD with learning rate {args.lr}.")
-    optimizer = SGD(model.parameters(), lr=args.lr)
+    print(f"Using SGD with learning rate {args.lr_max}.")
+    optimizer = SGD(model.parameters(), lr=args.lr_max)
     lr_scheduler = CosineAnnealingLR(optimizer, T_max=args.epochs)
     scaler = GradScaler()
 
