@@ -176,11 +176,14 @@ class Checkpointer:
         save(data, tmp_savepath)
         rename(tmp_savepath, savepath)
 
-    def load_latest_checkpoint(self) -> Tuple[int, Dict]:
+    def load_latest_checkpoint(self, **kwargs) -> Tuple[int, Dict]:
         """Load the latest checkpoint and set random number generator states.
 
         Updates the model, optimizer, lr scheduler, and gradient scaler states
         passed at initialization.
+
+        Args:
+            **kwargs: Additional keyword arguments to pass to the `torch.load` function.
 
         Returns:
             The epoch number at which training should resume, and the extra information
@@ -193,7 +196,7 @@ class Checkpointer:
 
         self.maybe_print(f"Loading checkpoint {loadpath}.")
 
-        data = load(loadpath)
+        data = load(loadpath, **kwargs)
         self.maybe_print("Loading model.")
         self.model.load_state_dict(data["model"])
         self.maybe_print("Loading optimizer.")
