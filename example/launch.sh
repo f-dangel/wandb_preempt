@@ -20,7 +20,7 @@ if [ "$SLURM_ARRAY_TASK_COUNT" != "" ]; then
 fi
 
 # NOTE that we need to use srun here, otherwise the Python process won't receive the SIGUSR1 signal
-srun --unbuffered wandb agent --count=1 f-dangel-team/example-preemptable-sweep/qmzevsi8 &
+srun wandb agent --count=1 f-dangel-team/example-preemptable-sweep/qmzevsi8 &
 child="$!"
 
 # Set up a handler to pass the SIGUSR1 to the python session launched by the agent
