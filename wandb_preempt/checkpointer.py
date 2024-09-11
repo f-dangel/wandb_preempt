@@ -113,7 +113,8 @@ class Checkpointer:
             frame: The current stack frame.
         """
         self.maybe_print(
-            f"Got signal {sig}. Marking as pre-empted. This will be the last epoch."
+            f"Received signal {sig}. Marking as pre-empted and will halt and requeue"
+            " the job at next call of checkpointer.step()."
         )
         self.marked_preempted = True
 
