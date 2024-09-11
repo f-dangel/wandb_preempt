@@ -8,7 +8,7 @@ from argparse import ArgumentParser
 
 import wandb
 from torch import autocast, bfloat16, cuda, device, manual_seed
-from torch.cuda.amp import GradScaler
+from torch.amp import GradScaler
 from torch.nn import Conv2d, CrossEntropyLoss, Flatten, Linear, ReLU, Sequential
 from torch.optim import SGD
 from torch.optim.lr_scheduler import CosineAnnealingLR
