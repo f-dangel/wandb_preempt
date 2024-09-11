@@ -13,8 +13,10 @@ This section explains how to create and launch a preempt-able [wandb sweep](http
 The repository's [`example`](https://github.com/f-dangel/wandb_preempt/tree/main/example) directory contains examples for each of these files, and here we will demonstrate how to make them work together. We will operate inside the example directory, so let's navigate to it:
 ```bash
 # If you haven't already, you'll need to clone the repository first
-git clone git@github.com:f-dangel/wandb_preempt.git
-cd wandb_preempt
+git clone git@github.com:f-dangel/wandb_preempt.git && cd wandb_preempt
+
+# And pip install the package from the repository
+pip install -e .[example]
 
 # Then navigate to the example directory within the repo
 cd example
@@ -49,7 +51,7 @@ The following configuration file defines a random search over the learning rate,
 By default, the example config will create a new project called `example-preemptable-sweep` owned by your default wandb entity (controlled by your [Default team setting](https://wandb.ai/settings)).
 
 /// details | Details of the sweep configuration `example/sweep.yaml` ([source](https://github.com/f-dangel/wandb_preempt/blob/main/example/sweep.yaml))
-```yaml hl_lines="1 2"
+```yaml hl_lines="1"
 --8<-- "example/sweep.yaml"
 ```
 ///
