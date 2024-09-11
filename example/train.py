@@ -101,6 +101,7 @@ def main(args):
                         "loss": loss.item(),
                         "lr": optimizer.param_groups[0]["lr"],
                         "loss_scale": scaler.get_scale(),
+                        "epoch": epoch,
                         "resumes": checkpointer.num_resumes,
                     }
                 )
