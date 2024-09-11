@@ -206,7 +206,7 @@ class Checkpointer:
             self.maybe_print("Loading gradient scaler.")
             self.scaler.load_state_dict(data["scaler"])
 
-        self.step_count = data["checkpoint_step"]
+        self.step_count = data["checkpoint_step"] + 1
         self.num_resumes = data["resumes"] + 1
 
         # restore random number generator states for all devices
@@ -217,7 +217,7 @@ class Checkpointer:
             else:
                 set_rng_state(rng_state)
 
-        return self.step_count + 1, data["extra_info"]
+        return self.step_count, data["extra_info"]
 
     def remove_checkpoints(self, keep_latest: bool = False):
         """Remove checkpoints.
