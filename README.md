@@ -11,7 +11,7 @@ re-queue and resume runs from a Weights & Biases sweep on a Slurm cluster.
 ### Installation
 
 ```bash
-pip install git+https://github.com/f-dangel/wandb_preempt.git@main
+pip install wandb_preempt
 ```
 
 ### Basic Example
