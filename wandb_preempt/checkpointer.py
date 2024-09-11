@@ -266,7 +266,7 @@ class Checkpointer:
         """
         checkpoints_sorted = sorted(
             self.all_checkpoints(),
-            key=lambda x: int(x.split("/")[-1].replace(".pt", "").split("_")[-1]),
+            key=lambda x: int(path.basename(x).replace(".pt", "").split("_")[-1]),
         )
         return checkpoints_sorted[-1] if checkpoints_sorted else None
 
