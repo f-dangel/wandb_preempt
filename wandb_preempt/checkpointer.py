@@ -185,7 +185,12 @@ class Checkpointer:
         passed at initialization.
 
         Args:
-            weights_only: Whether to load only the model weights. Default: `True`.
+            weights_only: Whether to only unpickle objects that are safe to unpickle.
+                If `True`, the only types that will be loaded are tensors, primitive
+                types, dictionaries and types added via
+                `torch.serialization.add_safe_globals()`.
+                See `torch.load` for more information.
+                Default: `True`.
             **kwargs: Additional keyword arguments to pass to the `torch.load` function.
 
         Returns:
