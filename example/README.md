@@ -28,7 +28,7 @@ First up, we need to write a training script that we will sweep over. The sweep 
 
 For demonstration purposes, we will train a small CNN on MNIST using SGD, and our goal is to find a good learning rate through random search using a `wandb` sweep. To keep things simple and cheap, we fix a batch size and use a (very) small number of epochs. Finally, we also use a learning rate scheduler and mixed-precision training with a gradient scaler. These are overkill for MNIST, of course, but important when training large models so we include them here to show how they are checkpointed too. In summary, we will call the training script using the following pattern:
 ```bash
-python train.py --lr=X
+python train.py --lr_max=X
 ```
 with `X` being some floating point number that the sweep will search over.
 
