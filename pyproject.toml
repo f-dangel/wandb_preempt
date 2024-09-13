@@ -14,7 +14,6 @@ authors = [
     { name = "Felix Dangel" },
     { name = "Scott Lowe" },
 ]
-urls = { Repository = "https://github.com/f-dangel/wandb_preempt" }
 description = "Code and tutorial on integrating wandb with slurm pre-emption"
 readme = { file = "README.md", content-type = "text/markdown; charset=UTF-8; variant=GFM" }
 license = { text = "MIT" }
@@ -35,9 +34,15 @@ dependencies = [
     "torch",
     "wandb",
 ]
-
 # Require a specific Python version, e.g. Python 2.7 or >= 3.4
 requires-python = ">=3.9"
+
+# URLs associated with the project
+[project.urls]
+Documentation = "https://wandb-preempt.readthedocs.io"
+Repository = "https://github.com/f-dangel/wandb_preempt"
+Issues = "https://github.com/f-dangel/wandb_preempt/issues"
+Changelog = "https://github.com/f-dangel/wandb_preempt/blob/main/changelog.md"
 
 [project.optional-dependencies]
 # Dependencies needed to run the tests (comma/line-separated)
