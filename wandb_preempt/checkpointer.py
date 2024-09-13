@@ -26,7 +26,9 @@ class Checkpointer:
     How to use this class:
 
     - Create an instance of this class `checkpointer = Checkpointer(...)`.
-    - At the end of each epoch, call `checkpointer.step()` to save a checkpoint.
+    - At the end of each epoch, call
+      [`checkpointer.step()`](../api/#wandb_preempt.Checkpointer.step) to save a
+      checkpoint.
       If the job received the `SIGUSR1` or `SIGTERM` signal, the checkpointer will
       requeue the Slurm job at the end of its checkpointing step.
     """
@@ -108,8 +110,9 @@ class Checkpointer:
     def mark_preempted(self, sig: int, frame: Optional[FrameType]):
         """Mark the checkpointer as pre-empted.
 
-        This information can be used by :meth:`step` to stop training after the current
-        epoch.
+        This information will be used by
+        [`Checkpointer.step`](../api/#wandb_preempt.Checkpointer.step) to stop training
+        after the next step.
 
         Args:
             sig: The signal number.
@@ -193,10 +196,14 @@ class Checkpointer:
             weights_only: Whether to only unpickle objects that are safe to unpickle.
                 If `True`, the only types that will be loaded are tensors, primitive
                 types, dictionaries and types added via
-                `torch.serialization.add_safe_globals()`.
-                See `torch.load` for more information.
+                [`torch.serialization.add_safe_globals()`](https://pytorch.org/docs/stable/notes/serialization.html#torch.serialization.add_safe_globals).
+                See
+                [`torch.load`](https://pytorch.org/docs/stable/generated/torch.load.html)
+                for more information.
                 Default: `True`.
-            **kwargs: Additional keyword arguments to pass to the `torch.load` function.
+            **kwargs: Additional keyword arguments to pass to the
+                [`torch.load`](https://pytorch.org/docs/stable/generated/torch.load.html)
+                function.
 
         Returns:
             loaded_step: The index of the checkpoint that was loaded, or `None` if no
@@ -354,7 +361,7 @@ class Checkpointer:
         Args:
             extra_info: Additional information to save in the checkpoint. This
                 dictionary is returned when loading the latest checkpoint with
-                `checkpointer.load_latest_checkpoint()`.
+                [`Checkpointer.load_latest_checkpoint`](../api/#wandb_preempt.Checkpointer.load_latest_checkpoint).
                 By default, an empty dictionary is saved.
         """
         self.save_checkpoint({} if extra_info is None else extra_info)
