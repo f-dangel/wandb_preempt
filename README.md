@@ -1,5 +1,6 @@
 # wandb_preempt
 
+[![PyPI - Version](https://img.shields.io/pypi/v/wandb_preempt)](https://pypi.org/project/wandb-preempt/)
 [![Documentation Status](https://readthedocs.org/projects/wandb-preempt/badge/?version=latest)](https://wandb-preempt.readthedocs.io/en/latest/?badge=latest)
 
 This repository contains a tutorial on how to combine [wandb](https://wandb.ai/) sweeps
