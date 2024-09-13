@@ -118,11 +118,15 @@ class Checkpointer:
             sig: The signal number.
             frame: The current stack frame.
         """
+        if self.marked_preempted:
+            self.maybe_print(f"Received signal {sig}, but already preempting.")
+            return
+        self.marked_preempted = True
         self.maybe_print(
-            f"Received signal {sig}. Marking as pre-empted and will halt and requeue"
+            f"Received signal {sig}. Marking as preempting and will halt and requeue"
             " the job at next call of checkpointer.step()."
         )
-        self.marked_preempted = True
+        wandb.mark_preempting()
 
     def checkpoint_path(self, counter: int) -> str:
         """Get the path to a checkpoint file for a given checkpointing step.
