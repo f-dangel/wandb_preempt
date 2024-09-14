@@ -85,14 +85,22 @@ def main(args):
     # Select the remaining epochs to train
     start_epoch = 0 if checkpoint_index is None else checkpoint_index + 1
 
-    wandb_resume_step = extra_info.get("wandb_step", None)
-    resume_from = (
-        None if wandb_resume_step is None else f"{run_id}?_step={wandb_resume_step}"
-    )
-    print("Resume string:", resume_from)
+    # NOTE forking must be enabled by the wandb team for your project.
+    # wandb_resume_step = extra_info.get("wandb_step", None)
+    # resume_from = (
+    #    None if wandb_resume_step is None else f"{run_id}?_step={wandb_resume_step}"
+    # )
+    # resume = "allow" if resume_from is None else None
+    # print("resume_from:", resume_from)
+    # print("resume:", resume)
+    # wandb.init(resume=resume, resume_from=resume_from)
 
     # NOTE: Allow runs to resume by passing 'allow' to wandb
-    wandb.init(resume="allow", resume_from=resume_from)
+    wandb.init(resume="allow")
+    print("Wandb step before manually setting it:", wandb.run.step)
+    # NOTE: Currently getting an error from setattr here
+    wandb.run.step = extra_info.get("wandb_step", 0)
+    print("Wandb step after manually setting it:", wandb.run.step)
 
     # training
     for epoch in range(start_epoch, args.epochs):

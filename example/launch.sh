@@ -8,8 +8,8 @@
 #SBATCH --qos=m5
 #SBATCH --open-mode=append
 #SBATCH --time=00:04:00
-#SBATCH --array=0-9
-#SBATCH --signal=B:SIGUSR1@120  # Send signal SIGUSR1 120 seconds before the job hits the time limit
+#SBATCH --array=0
+#SBATCH --signal=B:SIGUSR1@150  # Send signal SIGUSR1 120 seconds before the job hits the time limit
 
 echo "Job $SLURM_JOB_NAME ($SLURM_JOB_ID) begins on $(hostname), submitted from $SLURM_SUBMIT_HOST ($SLURM_CLUSTER_NAME)"
 echo ""
@@ -20,7 +20,7 @@ if [ "$SLURM_ARRAY_TASK_COUNT" != "" ]; then
 fi
 
 # NOTE that we need to use srun here, otherwise the Python process won't receive the SIGUSR1 signal
-srun wandb agent --count=1 f-dangel-team/example-preemptable-sweep/4m89qo6r &
+srun --unbuffered wandb agent --count=1 f-dangel-team/example-preemptable-sweep/4m89qo6r &
 child="$!"
 
 # Set up a handler to pass the SIGUSR1 to the python session launched by the agent
